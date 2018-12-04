@@ -19,7 +19,6 @@ fn main() {
     for line in &strings {
         let arr = re.captures(line).unwrap();
 
-        //let id: String = arr[1].to_string();
         let x_start: i32 = arr[2].parse().unwrap();
         let y_start: i32 = arr[3].parse().unwrap();
         let x_end: i32 = arr[4].parse().unwrap();
@@ -33,13 +32,39 @@ fn main() {
                 *count += 1;
             }
         }
-
     }
+
     let mut count = 0;
     for (_k, v) in &fabric {
-        if v >= &2 {
+        if *v >= 2 {
             count += 1;
         }
     }
-    println!("{}", count);
+    println!("{} squares have more than 2 claims", count);
+
+    for line in &strings {
+        let arr = re.captures(line).unwrap();
+
+        let id: String = arr[1].to_string();
+        let x_start: i32 = arr[2].parse().unwrap();
+        let y_start: i32 = arr[3].parse().unwrap();
+        let x_end: i32 = arr[4].parse().unwrap();
+        let y_end: i32 = arr[5].parse().unwrap();
+
+        let mut no_overlap = true;
+        for x in x_start..(x_start + x_end) {
+            for y in y_start..(y_start + y_end) {
+                let location = format!("{},{}", x, y);
+                let count = fabric[&location];
+
+                if count > 1 {
+                    no_overlap = false;
+                }
+            }
+        }
+
+        if no_overlap {
+            println!("ID {} has no overlap", id);
+        }
+    }
 }
