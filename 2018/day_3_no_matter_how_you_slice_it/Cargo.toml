@@ -1,0 +1,7 @@
+[package]
+name = "day_3_no_matter_how_you_slice_it"
+version = "0.1.0"
+authors = ["Forest Anderson <forestkzanderson@gmail.com>"]
+
+[dependencies]
+regex = "1"
