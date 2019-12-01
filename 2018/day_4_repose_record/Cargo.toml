@@ -1,0 +1,7 @@
+[package]
+name = "day_4_repose_record"
+version = "0.1.0"
+authors = ["Forest Anderson <forestkzanderson@gmail.com>"]
+
+[dependencies]
+regex = "1"
