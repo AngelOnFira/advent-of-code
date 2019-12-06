@@ -14,7 +14,7 @@ pub fn solve_part1(input: &str) -> i32 {
         let mut double = false;
         let mut last_digit = 0;
         let mut check = i.clone();
-        let mut num_len = (i as f32).log(10f32) as u32;
+        let num_len = (i as f32).log(10f32) as u32;
         for exp in 0..=num_len {
             let this_digit = check / 10i32.pow(num_len - exp);
             //println!("{}", this_digit);
@@ -51,7 +51,7 @@ pub fn solve_part2(input: &str) -> i32 {
         let mut same_count = 0;
         let mut last_digit = 0;
         let mut check = i.clone();
-        let mut num_len = (i as f32).log(10f32) as u32;
+        let num_len = (i as f32).log(10f32) as u32;
         for exp in 0..=num_len {
             let this_digit = check / 10i32.pow(num_len - exp);
             //println!("{}", this_digit);
@@ -83,7 +83,7 @@ pub fn solve_part2(input: &str) -> i32 {
 #[cfg(test)]
 mod tests {
     use super::solve_part1 as part1;
-    use super::solve_part2 as part2;
+    //use super::solve_part2 as part2;
 
     #[test]
     fn sample311() {
