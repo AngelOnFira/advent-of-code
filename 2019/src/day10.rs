@@ -38,21 +38,21 @@ pub fn solve_part1(input: &str) -> i32 {
                             let diff_x = x_check - x;
                             let diff_y = y_check - y;
 
-                            let lcd = lcd(diff_x, diff_y);
+                            let gcd = gcd(diff_x, diff_y);
 
                             let mut test_x = x;
                             let mut test_y = y;
 
-                            test_x += diff_x / lcd;
-                            test_y += diff_y / lcd;
+                            test_x += diff_x / gcd;
+                            test_y += diff_y / gcd;
 
                             while !(test_x == x_check && test_y == y_check) {
                                 if map[test_y as usize][test_x as usize] {
                                     continue 'cast;
                                 }
 
-                                test_x += diff_x / lcd;
-                                test_y += diff_y / lcd;
+                                test_x += diff_x / gcd;
+                                test_y += diff_y / gcd;
                             }
                             this_count += 1;
                         }
@@ -68,7 +68,7 @@ pub fn solve_part1(input: &str) -> i32 {
     count
 }
 
-fn lcd(a: i32, b: i32) -> i32 {
+fn gcd(a: i32, b: i32) -> i32 {
     if a==0 || b==0 {
         return max(a.abs(), b.abs());
     }
@@ -86,7 +86,7 @@ fn lcd(a: i32, b: i32) -> i32 {
 #[cfg(test)]
 mod tests {
     use super::solve_part1 as part1;
-    use super::lcd as lcd;
+    use super::gcd as gcd;
     //use super::solve_part2 as part2;
 
     #[test]
@@ -105,7 +105,7 @@ mod tests {
     }
 
     #[test]
-    fn test_lcd() {
-        assert_eq!(lcd(134124232, 2), 2);
+    fn test_gcd() {
+        assert_eq!(gcd(134124232, 2), 2);
     }
 }
