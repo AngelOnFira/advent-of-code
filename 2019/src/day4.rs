@@ -61,13 +61,11 @@ pub fn solve_part2(input: &str) -> i32 {
             if this_digit == last_digit {
                 same_count += 1;
                 if same_count == 1 {
-                double += 1;
-                }
-                else if same_count == 2 {
+                    double += 1;
+                } else if same_count == 2 {
                     double -= 1;
                 }
-            }
-            else {
+            } else {
                 same_count = 0;
             }
             last_digit = this_digit;

@@ -90,8 +90,7 @@ fn opcode_4(state: &mut State, parameter_modes: Vec<i32>) -> i32 {
 fn opcode_5(state: &mut State, parameter_modes: Vec<i32>) {
     if get_position(state, parameter_modes[0], 1) != 0 {
         state.instruction_pointer = get_position(state, parameter_modes[1], 2) as usize;
-    }
-    else {
+    } else {
         state.instruction_pointer += 3;
     }
 }
@@ -99,8 +98,7 @@ fn opcode_5(state: &mut State, parameter_modes: Vec<i32>) {
 fn opcode_6(state: &mut State, parameter_modes: Vec<i32>) {
     if get_position(state, parameter_modes[0], 1) == 0 {
         state.instruction_pointer = get_position(state, parameter_modes[1], 2) as usize;
-    }
-    else {
+    } else {
         state.instruction_pointer += 3;
     }
 }
@@ -108,8 +106,7 @@ fn opcode_6(state: &mut State, parameter_modes: Vec<i32>) {
 fn opcode_7(state: &mut State, parameter_modes: Vec<i32>) {
     if get_position(state, parameter_modes[0], 1) < get_position(state, parameter_modes[1], 2) {
         set_position(state, parameter_modes[2], 3, 1);
-    }
-    else {
+    } else {
         set_position(state, parameter_modes[2], 3, 0);
     }
     state.instruction_pointer += 4;
@@ -118,8 +115,7 @@ fn opcode_7(state: &mut State, parameter_modes: Vec<i32>) {
 fn opcode_8(state: &mut State, parameter_modes: Vec<i32>) {
     if get_position(state, parameter_modes[0], 1) == get_position(state, parameter_modes[1], 2) {
         set_position(state, parameter_modes[2], 3, 1);
-    }
-    else {
+    } else {
         set_position(state, parameter_modes[2], 3, 0);
     }
     state.instruction_pointer += 4;
@@ -156,7 +152,12 @@ pub fn solve_part2(input: &str) -> i32 {
             opcode = opcode_int;
             parameters = [0, 0, 0].to_vec();
         }
-        println!("{:?} op {} loc {}", parameters, opcode, state.instruction_pointer + 1);
+        println!(
+            "{:?} op {} loc {}",
+            parameters,
+            opcode,
+            state.instruction_pointer + 1
+        );
         match opcode {
             1 => opcode_1(&mut state, parameters),
             2 => opcode_2(&mut state, parameters),

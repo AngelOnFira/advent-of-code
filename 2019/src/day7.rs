@@ -102,8 +102,7 @@ pub fn solve_part2(input: &str) -> i32 {
                                 'feedback: for i in 0..5 {
                                     phase_states[i].input.push(current_result);
 
-                                    current_result =
-                                        call_intcode(&mut phase_states[i]);
+                                    current_result = call_intcode(&mut phase_states[i]);
 
                                     if current_result == -1 {
                                         break 'feedback;
@@ -193,9 +192,7 @@ fn opcode_2(state: &mut State, parameter_modes: Vec<i32>) {
 
 fn opcode_3(state: &mut State) {
     let input = state.input.remove(0);
-    set_position(
-        state, 0, 1, input
-    );
+    set_position(state, 0, 1, input);
     state.instruction_pointer += 2;
 }
 

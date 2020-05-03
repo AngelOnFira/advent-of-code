@@ -1,4 +1,4 @@
-use std::cmp::{min, max};
+use std::cmp::{max, min};
 
 #[aoc(day10, part1)]
 pub fn solve_part1(input: &str) -> i32 {
@@ -69,7 +69,7 @@ pub fn solve_part1(input: &str) -> i32 {
 }
 
 fn gcd(a: i32, b: i32) -> i32 {
-    if a==0 || b==0 {
+    if a == 0 || b == 0 {
         return max(a.abs(), b.abs());
     }
 
@@ -85,8 +85,8 @@ fn gcd(a: i32, b: i32) -> i32 {
 
 #[cfg(test)]
 mod tests {
+    use super::gcd;
     use super::solve_part1 as part1;
-    use super::gcd as gcd;
     //use super::solve_part2 as part2;
 
     #[test]
