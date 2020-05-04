@@ -18,6 +18,7 @@ pub mod day10;
 pub mod day11;
 pub mod day12;
 pub mod day16;
+pub mod day24;
 //pub mod day22;
 
 aoc_lib! { year = 2019 }
