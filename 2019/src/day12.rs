@@ -1,9 +1,9 @@
 use specs::prelude::*;
-use specs::DispatcherBuilder;
-use specs::{Builder, World, WorldExt};
+// use specs::DispatcherBuilder;
 use specs::{Component, VecStorage};
 use specs::{Join, System};
-use std::error::Error;
+use specs::{World, WorldExt};
+// use std::error::Error;
 
 use regex::Regex;
 
@@ -101,7 +101,7 @@ pub fn solve_part1(input: &[Vec<i32>]) -> i32 {
     // }
 
     for j in 0..10 {
-        let mut new_vels: Vec<&[i32]> = Vec::new();
+        let new_vels: Vec<&[i32]> = Vec::new();
 
         for moon in moons.clone() {
             let mut vel = [0; 3];
@@ -141,6 +141,6 @@ pub fn solve_part1(input: &[Vec<i32>]) -> i32 {
 
 #[cfg(test)]
 mod tests {
-    use super::solve_part1 as part1;
+    // use super::solve_part1 as part1;
     // use super::solve_part2 as part2;
 }

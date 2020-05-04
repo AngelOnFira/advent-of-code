@@ -1,6 +1,6 @@
 #[aoc(day8, part1)]
 pub fn solve_part1(input: &str) -> i32 {
-    let mut nums = input
+    let nums = input
         .chars()
         .map(|input| input.to_digit(10).unwrap())
         .collect::<Vec<u32>>();
@@ -26,7 +26,7 @@ pub fn solve_part1(input: &str) -> i32 {
 
 #[aoc(day8, part2)]
 pub fn solve_part2(input: &str) -> i32 {
-    let mut nums = input
+    let nums = input
         .chars()
         .map(|input| input.to_digit(10).unwrap())
         .collect::<Vec<u32>>();

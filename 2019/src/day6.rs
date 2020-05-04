@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 #[derive(Debug)]
 struct Object<'a> {
@@ -10,8 +10,8 @@ struct Object<'a> {
 pub fn solve_part1<'a>(input: &'a str) -> i32 {
     let mut child_map: HashMap<&str, Object> = HashMap::new();
     input.lines().for_each(|input| {
-        let mut orbit_info = input.split(")").collect::<Vec<&str>>();
-        let mut parent_name = orbit_info[0];
+        let orbit_info = input.split(")").collect::<Vec<&str>>();
+        let parent_name = orbit_info[0];
         let child_name = orbit_info[1];
 
         if !child_map.contains_key(parent_name) {
@@ -69,8 +69,8 @@ fn count_recurse(child_map: &HashMap<&str, Object>, name: &str, depth: i32) -> i
 pub fn solve_part2<'a>(input: &'a str) -> i32 {
     let mut child_map: HashMap<&str, Object> = HashMap::new();
     input.lines().for_each(|input| {
-        let mut orbit_info = input.split(")").collect::<Vec<&str>>();
-        let mut parent_name = orbit_info[0];
+        let orbit_info = input.split(")").collect::<Vec<&str>>();
+        let parent_name = orbit_info[0];
         let child_name = orbit_info[1];
 
         if !child_map.contains_key(parent_name) {

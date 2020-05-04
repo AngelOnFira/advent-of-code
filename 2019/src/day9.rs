@@ -1,4 +1,4 @@
-use super::opcode::{call_intcode, State};
+use super::intcode::intcode::{call_intcode, State};
 use std::collections::HashMap;
 
 #[aoc(day9, part1)]
@@ -8,19 +8,23 @@ pub fn solve_part1(input: &str) -> i64 {
         relative_pointer: 0,
         instructions: Default::default(),
         input: Vec::new(),
+        output: Vec::new(),
         memory: HashMap::new(),
     };
-
-    state.input.push(1);
 
     state.instructions = input
         .split(",")
         .map(|input| input.parse::<i64>().unwrap())
         .collect::<Vec<i64>>();
 
+    state.input.push(1);
+
     call_intcode(&mut state);
 
-    return 12;
+    println!("{:?}", state.output);
+
+    state.output.last().copied().unwrap()
+
 }
 
 #[cfg(test)]

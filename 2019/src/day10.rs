@@ -76,7 +76,7 @@ fn gcd(a: i32, b: i32) -> i32 {
     let small = min(a.abs(), b.abs());
     for i in 0..=small {
         if a.abs() % (small - i) == 0 && b.abs() % (small - i) == 0 {
-            return (small - i);
+            return small - i;
         }
     }
 

@@ -1,51 +1,27 @@
+use super::intcode::intcode::{call_intcode, State};
+
 #[aoc(day2, part1)]
-pub fn solve_part1(input: &str) -> i32 {
-    let mut number = input
+pub fn solve_part1(input: &str) -> i64 {
+    let mut state = State {
+        instruction_pointer: 0,
+        relative_pointer: 0,
+        instructions: Default::default(),
+        input: Vec::new(),
+        output: Vec::new(),
+        memory: Default::default(),
+    };
+
+    state.instructions = input
         .split(",")
-        .map(|input| input.parse::<i32>().unwrap())
-        .collect::<Vec<i32>>();
+        .map(|input| input.parse::<i64>().unwrap())
+        .collect::<Vec<i64>>();
 
-    number[1] = 12;
-    number[2] = 2;
+    state.instructions[1] = 12;
+    state.instructions[2] = 2;
 
-    // If I knew more unsafe Rust this would work
-    //
-    // for chunk in number[..].chunks(4) {
-    //     let opcode = chunk[0];
-    //     let read_loc1 = chunk[1] as usize;
-    //     let read_loc2 = chunk[2] as usize;
-    //     let out_loc = chunk[3] as usize;
+    call_intcode(&mut state);
 
-    //     println!("{}, {}, {}, {}", opcode, read_loc1, read_loc2, out_loc);
-    //     unsafe {
-    //         match opcode {
-    //             1 => number[out_loc] = number[read_loc1] + number[read_loc2],
-    //             2 => number[out_loc] = number[read_loc1] * number[read_loc2],
-    //             99 => return number[0],
-    //             _ => unreachable!()
-    //         }
-    //     }
-    // }
-
-    let mut index = 0;
-
-    while index + 4 < number.len() {
-        let opcode = number[index];
-        let read_loc1 = number[index + 1] as usize;
-        let read_loc2 = number[index + 2] as usize;
-        let out_loc = number[index + 3] as usize;
-
-        match opcode {
-            1 => number[out_loc] = number[read_loc1] + number[read_loc2],
-            2 => number[out_loc] = number[read_loc1] * number[read_loc2],
-            99 => return number[0],
-            _ => unreachable!(),
-        }
-
-        index += 4;
-    }
-
-    number[0]
+    state.instructions[0]
 }
 
 #[aoc(day2, part2)]
@@ -90,7 +66,7 @@ mod tests {
 
     #[test]
     fn sample1() {
-        assert_eq!(part1("1,0,0,0,99\n"), 2);
+        assert_eq!(part1("1,0,0,0,99"), 2);
     }
 
     #[test]

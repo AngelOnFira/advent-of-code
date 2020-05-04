@@ -44,9 +44,9 @@ pub fn solve_part1(input: &str) -> i32 {
 
 #[aoc(day16, part2)]
 pub fn solve_part2(input: &str) -> i32 {
-    let pattern = [0, 1, 0, -1];
+    let _pattern = [0, 1, 0, -1];
 
-    let mut base_phase: Vec<i8> = input
+    let base_phase: Vec<i8> = input
         .chars()
         .map(|x| x.to_digit(10).unwrap() as i8)
         .collect::<Vec<i8>>();
@@ -65,7 +65,7 @@ pub fn solve_part2(input: &str) -> i32 {
 
     for _phase in 0..100 {
         let mut new_phase: Vec<i8> = Vec::new();
-        for i in (message_loc as usize)..last_phase.len() {
+        for _ in (message_loc as usize)..last_phase.len() {
             let mut total: i32 = 0;
             for j in (message_loc as usize)..last_phase.len() {
                 total += last_phase[j] as i32
