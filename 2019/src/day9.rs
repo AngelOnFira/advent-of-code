@@ -24,7 +24,6 @@ pub fn solve_part1(input: &str) -> i64 {
     println!("{:?}", state.output);
 
     state.output.last().copied().unwrap()
-
 }
 
 #[cfg(test)]
