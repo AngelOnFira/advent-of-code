@@ -1,7 +1,7 @@
 use super::intcode::intcode::{call_intcode, State};
 
 #[aoc(day2, part1)]
-pub fn solve_part1(input: &str) -> i64 {
+pub fn solve_part1(input: &str) -> i128 {
     let mut state = State {
         instruction_pointer: 0,
         relative_pointer: 0,
@@ -13,8 +13,8 @@ pub fn solve_part1(input: &str) -> i64 {
 
     state.instructions = input
         .split(",")
-        .map(|input| input.parse::<i64>().unwrap())
-        .collect::<Vec<i64>>();
+        .map(|input| input.parse::<i128>().unwrap())
+        .collect::<Vec<i128>>();
 
     state.instructions[1] = 12;
     state.instructions[2] = 2;
