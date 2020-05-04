@@ -19,7 +19,7 @@ pub fn solve_part1(input: &str) -> i128 {
 
     state.input.push(1);
 
-    call_intcode(&mut state);
+    call_intcode(&mut state, false);
 
     println!("{:?}", state.output);
 
@@ -44,7 +44,7 @@ pub fn solve_part2(input: &str) -> i128 {
 
     state.input.push(2);
 
-    call_intcode(&mut state);
+    call_intcode(&mut state, false);
 
     println!("{:?}", state.output);
 

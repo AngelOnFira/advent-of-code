@@ -19,7 +19,7 @@ pub fn solve_part1(input: &str) -> i128 {
     state.instructions[1] = 12;
     state.instructions[2] = 2;
 
-    call_intcode(&mut state);
+    call_intcode(&mut state, false);
 
     state.instructions[0]
 }

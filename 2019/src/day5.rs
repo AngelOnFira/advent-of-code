@@ -18,7 +18,7 @@ pub fn solve_part1(input: &str) -> i128 {
         .map(|input| input.parse::<i128>().unwrap())
         .collect::<Vec<i128>>();
 
-    call_intcode(&mut state);
+    call_intcode(&mut state, false);
 
     // Print the diagnostics
     // println!("{:?}", state.output);
@@ -44,7 +44,7 @@ pub fn solve_part2(input: &str) -> i128 {
 
     state.input.push(5);
 
-    call_intcode(&mut state);
+    call_intcode(&mut state, false);
 
     state.output.last().copied().unwrap()
 }

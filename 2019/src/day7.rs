@@ -40,7 +40,7 @@ pub fn solve_part1(input: &str) -> i32 {
                                 vec![phase_a, phase_b, phase_c, phase_d, phase_e];
 
                             for i in 0..5 {
-                                let mut input: Vec<i32> = vec![last_output, phase_setting[i]];
+                                let _input: Vec<i32> = vec![last_output, phase_setting[i]];
 
                                 last_output = call_intcode(&mut state.clone());
                             }

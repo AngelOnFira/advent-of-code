@@ -11,7 +11,7 @@ pub mod intcode {
         pub memory: HashMap<String, i128>,
     }
 
-    pub fn call_intcode(state: &mut State) -> i128 {
+    pub fn call_intcode(state: &mut State, return_on_output: bool) -> i128 {
         loop {
             let opcode_int = state.instructions[state.instruction_pointer];
 
@@ -39,6 +39,9 @@ pub mod intcode {
                 4 => {
                     let o = opcode_4(state, parameters);
                     state.output.push(o);
+                    if return_on_output {
+                        return o;
+                    }
                 }
                 5 => opcode_5(state, parameters),
                 6 => opcode_6(state, parameters),
@@ -68,7 +71,7 @@ pub mod intcode {
             unimplemented!()
         }
 
-        if location > state.instructions.len() {
+        if location >= state.instructions.len() {
             match state.memory.get(&location.to_string()).copied() {
                 Some(value) => return value,
                 None => return 0,
@@ -92,7 +95,7 @@ pub mod intcode {
             unreachable!();
         }
 
-        if location > state.instructions.len() {
+        if location >= state.instructions.len() {
             state.memory.insert(location.to_string(), input);
         } else {
             state.instructions[location] = input;
