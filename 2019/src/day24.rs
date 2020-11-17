@@ -1,4 +1,4 @@
-use std::collections::{HashSet, HashMap};
+use std::collections::{HashSet};
 
 #[aoc(day24, part1)]
 pub fn solve_part1(input: &str) -> i32 {
@@ -66,8 +66,8 @@ pub fn solve_part2(input: &str) -> i32 {
     let mut map: Vec<Vec<bool>> = Vec::new();
     // let mut levels= HashMap::new();
 
-    let mut max_dim = 0;
-    let mut min_dim = 0;
+    // let max_dim = 0;
+    // let min_dim = 0;
 
     // levels.insert(0, map);
 

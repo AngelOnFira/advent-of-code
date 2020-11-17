@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 #[aoc(day13, part1)]
 pub fn solve_part1(input: &str) -> i128 {
-    let mut panels: HashMap<String, i8> = HashMap::new();
+    // let panels: HashMap<String, i8> = HashMap::new();
 
     let mut state = State {
         instruction_pointer: 0,
@@ -42,7 +42,7 @@ pub fn solve_part1(input: &str) -> i128 {
 
 #[aoc(day13, part2)]
 pub fn solve_part2(input: &str) -> i128 {
-    let mut panels: HashMap<String, i8> = HashMap::new();
+    // let panels: HashMap<String, i8> = HashMap::new();
 
     let mut state = State {
         instruction_pointer: 0,

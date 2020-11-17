@@ -1,5 +1,4 @@
 use std::cmp::{max, min};
-use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 
 #[aoc(day10, part1)]
@@ -11,7 +10,7 @@ pub fn solve_part1(input: &str) -> i32 {
 
 #[aoc(day10, part2)]
 pub fn solve_part2(input: &str) -> i32 {
-    let (count, max_x, max_y, map) = get_station(input);
+    let (_, max_x, max_y, map) = get_station(input);
     println!("{} {}", max_x, max_y);
 
     let mut stations: HashMap<i64, Vec<(f64, usize, usize)>> = HashMap::new();
