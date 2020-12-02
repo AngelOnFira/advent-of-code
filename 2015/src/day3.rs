@@ -1,30 +1,48 @@
-#[aoc(day1, part1)]
+use std::collections::HashSet;
+
+#[aoc(day3, part1)]
 pub fn solve_part1(input: &str) -> i32 {
     let mut count = 0;
+    let mut x = 0;
+    let mut y = 0;
+    let mut houses: HashSet<(i32, i32)> = HashSet::new();
+
+    houses.insert((x, y));
+
     for character in input.chars() {
         match character {
-            '(' => count += 1,
-            ')' => count -= 1,
+            '>' => x += 1,
+            '<' => x -= 1,
+            '^' => y -= 1,
+            'v' => y += 1,
             _ => unreachable!(),
         };
+
+        houses.insert((x, y));
     }
-    count
+    houses.len() as i32
 }
 
-#[aoc(day1, part2)]
+#[aoc(day3, part2)]
 pub fn solve_part2(input: &str) -> i32 {
     let mut count = 0;
+    let mut pos = vec![vec![0, 0], vec![0, 0]];
+    let mut houses: HashSet<(i32, i32)> = HashSet::new();
+
+    houses.insert((0, 0));
+
     for (i, character) in input.chars().enumerate() {
         match character {
-            '(' => count += 1,
-            ')' => count -= 1,
+            '>' => pos[i % 2][0] += 1,
+            '<' => pos[i % 2][0] -= 1,
+            '^' => pos[i % 2][1] -= 1,
+            'v' => pos[i % 2][1] += 1,
             _ => unreachable!(),
         };
-        if count < 0 {
-            return (i + 1) as i32;
-        }
+
+        houses.insert((pos[i % 2][0], pos[i % 2][1]));
     }
-    unreachable!();
+    houses.len() as i32
 }
 
 #[cfg(test)]
