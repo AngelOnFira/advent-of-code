@@ -2,7 +2,6 @@ use std::collections::HashSet;
 
 #[aoc(day3, part1)]
 pub fn solve_part1(input: &str) -> i32 {
-    let mut count = 0;
     let mut x = 0;
     let mut y = 0;
     let mut houses: HashSet<(i32, i32)> = HashSet::new();
@@ -25,7 +24,6 @@ pub fn solve_part1(input: &str) -> i32 {
 
 #[aoc(day3, part2)]
 pub fn solve_part2(input: &str) -> i32 {
-    let mut count = 0;
     let mut pos = vec![vec![0, 0], vec![0, 0]];
     let mut houses: HashSet<(i32, i32)> = HashSet::new();
 
