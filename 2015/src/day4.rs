@@ -2,6 +2,15 @@ use md5;
 use std::collections::HashSet;
 use std::convert::TryInto;
 
+impl Eq for ID {
+    fn eq(&self, other: &ID) -> bool {
+        self.bytes
+            .iter()
+            .zip(other.bytes.iter())
+            .all(|(a, b)| a == b)
+    }
+}
+
 #[aoc(day4, part1)]
 pub fn solve_part1(input: &str) -> i32 {
     // let mut count = 0;
