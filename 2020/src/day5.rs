@@ -1,6 +1,3 @@
-use regex::Regex;
-use std::collections::HashMap;
-
 #[aoc(day5, part1)]
 pub fn solve_part1(input: &str) -> i32 {
     input.lines().fold(0, |acc, pass| {
