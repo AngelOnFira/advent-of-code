@@ -31,7 +31,6 @@ fn parse_input_day7(input: &str) -> HashMap<String, Vec<(String, i32)>> {
                     .collect::<Vec<(String, i32)>>();
                 return (bag, inner_bags);
             }
-            unreachable!();
         })
         .collect::<HashMap<String, Vec<(String, i32)>>>()
 }
