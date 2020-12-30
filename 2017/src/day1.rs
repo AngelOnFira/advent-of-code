@@ -16,7 +16,7 @@ pub fn solve_part2(input: &str) -> i32 {
     let circle: Vec<char> = input.chars().collect();
 
     (0..circle.len()).fold(0, |acc, i| {
-        if circle[0] == circle[((i + circle.len() / 2) % circle.len())] {
+        if circle[i] == circle[((i + circle.len() / 2) % circle.len())] {
             return acc + circle[i].to_digit(10).unwrap() as i32;
         }
         acc
