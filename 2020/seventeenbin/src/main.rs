@@ -1,23 +1,25 @@
 use itertools::iproduct;
 use rayon::prelude::*;
 use std::collections::HashSet;
+use std::fs;
 
-#[aoc_generator(day17)]
-fn parse_input_day17(input: &str) -> HashSet<[i32; 4]> {
-    let mut out_set = HashSet::new();
-    for (y, line) in input.lines().enumerate() {
+pub fn main() {
+    
+}
+
+fn day17() {
+    let contents = fs::read_to_string("day17.txt")
+        .expect("Can't find input file day17.txt");
+
+    let mut last_grid = HashSet::new();
+
+    for (y, line) in contents.lines().enumerate() {
         for (x, character) in line.chars().enumerate() {
             if character == '#' {
-                out_set.insert([x as i32, y as i32, 0, 0]);
+                last_grid.insert([x as i32, y as i32, 0, 0]);
             }
         }
     }
-    out_set
-}
-
-#[aoc(day17, part2)]
-pub fn solve_part2(input: &HashSet<[i32; 4]>) -> i32 {
-    let mut last_grid = input.clone();
 
     for _ in 0..6 {
         let mut area = Vec::new();
@@ -70,5 +72,5 @@ pub fn solve_part2(input: &HashSet<[i32; 4]>) -> i32 {
             .collect();
         last_grid = new_grid.clone();
     }
-    last_grid.len() as i32
+    println!("The answer is: {}", last_grid.len());
 }

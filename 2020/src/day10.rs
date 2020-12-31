@@ -9,7 +9,7 @@ fn parse_input_day10(input: &str) -> Vec<i64> {
 
 #[aoc(day10, part1)]
 pub fn solve_part1(input: &Vec<i64>) -> i64 {
-    let mut joltage_list = input.clone();
+    let joltage_list = input.clone();
 
     let mut joltage = 0;
     let mut jumps = [0; 3];
