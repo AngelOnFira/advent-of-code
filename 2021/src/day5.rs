@@ -62,7 +62,7 @@ pub fn solve_part1(input: &[Instruction]) -> i32 {
     let mut grid: HashMap<(i32, i32), i32> = HashMap::new();
 
     for instruction in input {
-        println!("{:?}", instruction);
+        // println!("{:?}", instruction);
         let x1 = instruction.x1;
         let y1 = instruction.y1;
         let x2 = instruction.x2;
@@ -77,14 +77,6 @@ pub fn solve_part1(input: &[Instruction]) -> i32 {
                 grid.entry((x, y1)).and_modify(|e| *e += 1).or_insert(1);
             }
         }
-    }
-
-    // print out the grid
-    for y in 0..=9 {
-        for x in 0..=9 {
-            print!("{}", grid.get(&(x, y)).unwrap_or(&0));
-        }
-        println!();
     }
 
     grid.values().filter(|&e| *e >= 2).count() as i32
@@ -152,13 +144,32 @@ pub fn solve_part2(input: &[Instruction]) -> i32 {
         }
     }
 
-    // print out the grid
-    for y in 0..=9 {
-        for x in 0..=9 {
-            print!("{}", grid.get(&(x, y)).unwrap_or(&0));
-        }
-        println!();
+    // get the bounding box
+    let mut min_x = 0;
+    let mut min_y = 0;
+    let mut max_x = 0;
+    let mut max_y = 0;
+
+    for (x, y) in grid.keys() {
+        min_x = min(min_x, *x);
+        min_y = min(min_y, *y);
+        max_x = max(max_x, *x);
+        max_y = max(max_y, *y);
     }
+
+    // print out the grid
+    // for y in min_y..=max_y {
+    //     for x in min_x..=min_x + 900 {
+    //         print!(
+    //             "{}",
+    //             match grid.get(&(x, y)).unwrap_or(&0) {
+    //                 1 => '#',
+    //                 _ => ' ',
+    //             }
+    //         );
+    //     }
+    //     println!();
+    // }
 
     grid.values().filter(|&e| *e >= 2).count() as i32
 }

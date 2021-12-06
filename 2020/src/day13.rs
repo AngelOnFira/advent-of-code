@@ -31,7 +31,7 @@ pub fn solve_part2(input: &Vec<(i64, i64)>) -> i64 {
     // let mut count = 0;
     // let start: i64 = 0;
     // let start: i64 = 100000000000000;
-    let _ = ((100000000000000 / skip)..upper_bound / skip)
+    let _ = ((100_000_000_000_000 / skip)..upper_bound / skip)
         .into_par_iter()
         .filter(|x| {
             let counter = x * skip + input[0].1;
