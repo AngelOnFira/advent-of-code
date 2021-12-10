@@ -1,7 +1,3 @@
-use regex::Regex;
-
-pub struct Instruction {}
-
 #[aoc_generator(day6)]
 pub fn input_generator(input: &str) -> Vec<i32> {
     // 3,4,3,1,2
