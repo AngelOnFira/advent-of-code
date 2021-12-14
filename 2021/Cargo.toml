@@ -18,3 +18,5 @@ rayon = "1"
 slice-deque = "0.3.0"
 num-bigint = "0.4"
 num-traits = "0.2.14"
+
+chumsky = "0.6.0"
