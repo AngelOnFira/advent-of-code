@@ -1,3 +1,5 @@
+use num_bigint::{BigUint, ToBigUint};
+use num_traits::{One, Zero};
 use regex::Regex;
 
 pub struct Instruction {}
@@ -53,23 +55,36 @@ pub fn solve_part1(input: &[i32]) -> i32 {
 pub fn solve_part2(input: &[i32]) -> i64 {
     let mut fish = input.to_vec();
 
-    let mut health: [i64; 9] = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+    let mut health: [BigUint; 9] = [
+        Zero::zero(),
+        Zero::zero(),
+        Zero::zero(),
+        Zero::zero(),
+        Zero::zero(),
+        Zero::zero(),
+        Zero::zero(),
+        Zero::zero(),
+        Zero::zero(),
+    ];
 
     for x in fish {
-        health[x as usize] += 1;
+        health[x as usize] += ToBigUint::to_biguint(&1).unwrap();
     }
 
-    for i in 0..256 {
+    for i in 0..2_i32.pow(24) {
         // dbg!(health);
-        let old = health[0];
+        let old = health[0].clone();
 
         for j in 0..8 {
-            health[j] = health[j + 1];
+            health[j] = health[j + 1].clone();
         }
 
-        health[6] += old;
+        health[6] += old.clone();
         health[8] = old;
     }
 
-    health.iter().sum::<i64>()
+    dbg!(health.iter().sum::<BigUint>());
+
+    3
+    // health.iter().sum::<i64>()
 }
