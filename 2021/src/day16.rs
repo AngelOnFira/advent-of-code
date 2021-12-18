@@ -72,7 +72,7 @@ pub struct Packet {
     pub version: usize,
     pub type_id: usize,
     pub index: usize,
-    pub data: usize,
+    pub data: u128,
     pub version_num_total: usize,
 }
 
@@ -98,7 +98,7 @@ pub fn parse_packet(input: Vec<u8>) -> Packet {
 
     packet.index = 6;
 
-    // dbg!(&packet);
+    dbg!(&packet);
 
     match type_id {
         // Packets with type ID 0 are sum packets - their value is the sum of
@@ -132,20 +132,40 @@ pub fn parse_packet(input: Vec<u8>) -> Packet {
         // exactly two sub-packets.
         //
         4 => {
-            let mut value = convert_to_dec(input[packet.index..packet.index + 5].to_vec());
+            let mut total_num: Vec<u8> = Vec::new();
+            let mut next_five = input[packet.index..packet.index + 5].to_vec();
             packet.index += 5;
-            while value >= 16 {
-                packet.data += value as usize;
-                value = convert_to_dec(input[packet.index..packet.index + 5].to_vec());
+
+            while next_five[0] == 1 {
+                total_num.append(
+                    &mut next_five[1..]
+                        .iter()
+                        .map(|x| x.clone())
+                        .collect::<Vec<u8>>(),
+                );
+                next_five = input[packet.index..packet.index + 5].to_vec();
                 packet.index += 5;
             }
-            packet.data += value as usize;
+
+            total_num.append(
+                &mut next_five[1..]
+                    .iter()
+                    .map(|x| x.clone())
+                    .collect::<Vec<u8>>(),
+            );
+
+            dbg!(&total_num);
+
+            let value = convert_to_dec(total_num);
+            packet.data = value as u128;
+
+            dbg!(&packet);
         }
 
         _ => {
             let length_type_id = convert_to_dec(input[packet.index..packet.index + 1].to_vec());
             packet.index += 1;
-            let mut results: Vec<usize> = Vec::new();
+            let mut results: Vec<u128> = Vec::new();
 
             match length_type_id {
                 // If the length type ID is 0, then the next 15 bits are a number that
@@ -184,6 +204,12 @@ pub fn parse_packet(input: Vec<u8>) -> Packet {
                     }
                 }
                 _ => panic!("Invalid length type ID"),
+            }
+
+            // dbg!(&results);
+
+            if let 5 | 6 | 7 = type_id {
+                assert!(results.len() == 2);
             }
 
             match type_id {
