@@ -99,6 +99,10 @@ fn add_snailfish_numbers(left: String, right: String) -> String {
     format!("[{},{}]", left, right)
 }
 
+fn add_to_last_num_in_string(input: String, num: usize) -> String {
+    
+}
+
 #[aoc(day18, part1)]
 pub fn solve_part1(input: &Vec<String>) -> i32 {
     let final_snail = input
