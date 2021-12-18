@@ -1,15 +1,14 @@
-use regex::Regex;
 
 pub struct Instruction {}
 
 #[aoc_generator(day17)]
-pub fn input_generator(input: &str) -> i32 {
+pub fn input_generator(_: &str) -> i32 {
     //target area: x=85..145, y=-163..-108
     1
 }
 
 #[aoc(day17, part1)]
-pub fn solve_part1(input: &i32) -> i32 {
+pub fn solve_part1(_: &i32) -> i32 {
     let x1 = 85;
     let x2 = 145;
     let y1 = -163;
@@ -61,7 +60,7 @@ pub fn solve_part1(input: &i32) -> i32 {
 }
 
 #[aoc(day17, part2)]
-pub fn solve_part2(input: &i32) -> i32 {
+pub fn solve_part2(_: &i32) -> i32 {
     let x1 = 85;
     let x2 = 145;
     let y1 = -163;
@@ -69,11 +68,11 @@ pub fn solve_part2(input: &i32) -> i32 {
 
     let mut inside_count = 0;
 
-    for x in -1000..1000 {
+    for x in 0..1000 {
         for y in -1000..1000 {
             let mut curr_pos = (0, 0);
             let mut curr_vel = (x, y);
-            for _ in 0..1000 {
+            loop {
                 curr_pos.0 += curr_vel.0;
                 curr_pos.1 += curr_vel.1;
 
@@ -88,6 +87,11 @@ pub fn solve_part2(input: &i32) -> i32 {
                 // Check if curr_pos is in the target area
                 if curr_pos.0 >= x1 && curr_pos.0 <= x2 && curr_pos.1 >= y1 && curr_pos.1 <= y2 {
                     inside_count += 1;
+                    break;
+                }
+
+                // check if we've passed the target area
+                if curr_pos.0 > x2 || curr_pos.1 > y2 {
                     break;
                 }
             }

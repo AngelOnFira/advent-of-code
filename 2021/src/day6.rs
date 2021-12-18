@@ -1,6 +1,5 @@
 use num_bigint::{BigUint, ToBigUint};
-use num_traits::{One, Zero};
-use regex::Regex;
+use num_traits::{ Zero};
 
 pub struct Instruction {}
 
@@ -53,7 +52,7 @@ pub fn solve_part1(input: &[i32]) -> i32 {
 
 #[aoc(day6, part2)]
 pub fn solve_part2(input: &[i32]) -> i64 {
-    let mut fish = input.to_vec();
+    let  fish = input.to_vec();
 
     let mut health: [BigUint; 9] = [
         Zero::zero(),

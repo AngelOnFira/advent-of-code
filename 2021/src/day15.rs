@@ -1,7 +1,4 @@
-use std::collections::{HashMap, HashSet, VecDeque};
-
-use itertools::Itertools;
-use regex::Regex;
+use std::collections::{HashMap, HashSet};
 
 pub struct Instruction {}
 
@@ -55,7 +52,7 @@ pub fn solve_part1(input: &Vec<Vec<i32>>) -> i32 {
             let new_x = x + dir.0 as usize;
             let new_y = y + dir.1 as usize;
 
-            if new_x < 0 || new_y < 0 || new_x >= grid.len() || new_y >= grid[0].len() {
+            if new_x >= grid.len() || new_y >= grid[0].len() {
                 continue;
             }
 
@@ -91,7 +88,7 @@ pub fn solve_part2(input: &Vec<Vec<i32>>) -> i32 {
         for x in 0..5 * input[0].len() {
             let reference = input[y % input.len()][x % input[0].len()];
             let mult = y / input.len() + x / input[0].len();
-            let mut num = (reference + mult as i32);
+            let mut num = reference + mult as i32;
             if num > 9 {
                 num -= 9;
             }
@@ -132,7 +129,7 @@ pub fn solve_part2(input: &Vec<Vec<i32>>) -> i32 {
             let new_x = x + dir.0 as usize;
             let new_y = y + dir.1 as usize;
 
-            if new_x < 0 || new_y < 0 || new_x >= grid.len() || new_y >= grid[0].len() {
+            if new_x >= grid.len() || new_y >= grid[0].len() {
                 continue;
             }
 

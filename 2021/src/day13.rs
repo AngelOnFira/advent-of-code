@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 use regex::Regex;
 
@@ -43,7 +43,6 @@ pub fn input_generator(input: &str) -> (HashSet<(i32, i32)>, Vec<(char, i32)>) {
         let val = cap[2].parse::<i32>().unwrap();
         folds.push((axis, val));
     }
-
 
     (coords, folds)
 }

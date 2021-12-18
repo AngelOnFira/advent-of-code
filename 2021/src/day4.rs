@@ -54,17 +54,6 @@ impl Board {
     }
 }
 
-fn part_two(inputs: &Vec<Vec<bool>>) {
-    let sentinel = true;
-    let pos = 2;
-
-    let out: Vec<Vec<bool>> = inputs
-        .iter()
-        .filter(|&row| *row.get(pos).unwrap() == sentinel)
-        .map(|row| row.clone())
-        .collect();
-}
-
 #[aoc_generator(day4)]
 pub fn input_generator(input: &str) -> Game {
     // Numbers

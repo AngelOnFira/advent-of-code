@@ -97,7 +97,7 @@ pub fn solve_part1(input: &HashMap<(i32, i32), i32>) -> i32 {
 pub fn solve_part2(input: &HashMap<(i32, i32), i32>) -> i32 {
     let mut map = input.clone();
 
-    let mut flash_count = 0;
+    let flash_count = 0;
     for i in 0.. {
         // let mut new_map = HashMap::new();
 

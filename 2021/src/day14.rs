@@ -39,7 +39,7 @@ pub fn input_generator(input: &str) -> (String, HashMap<String, String>) {
 pub fn solve_part1(input: &(String, HashMap<String, String>)) -> i32 {
     let mut curr_string: Vec<char> = input.0.chars().collect();
     let map = input.1.clone();
-    for i in 0..10 {
+    for _ in 0..10 {
         // Iterate over each window of len 2
         let new_string = curr_string
             .windows(2)
@@ -70,7 +70,7 @@ pub fn solve_part1(input: &(String, HashMap<String, String>)) -> i32 {
 
 #[aoc(day14, part2)]
 pub fn solve_part2(input: &(String, HashMap<String, String>)) -> i128 {
-    let mut curr_string: Vec<char> = input.0.chars().collect();
+    let curr_string: Vec<char> = input.0.chars().collect();
     let map = input.1.clone();
 
     let mut count_map: HashMap<String, i128> = HashMap::new();
@@ -84,7 +84,7 @@ pub fn solve_part2(input: &(String, HashMap<String, String>)) -> i128 {
     }
 
     let mut old_count_map: HashMap<String, i128> = count_map.clone();
-    for i in 0..40 {
+    for _ in 0..40 {
         let mut new_count_map = HashMap::new();
 
         // Iterate over every item in the old_count_map

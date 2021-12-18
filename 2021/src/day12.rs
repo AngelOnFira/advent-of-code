@@ -105,8 +105,7 @@ pub fn recursive_seach(
 
 #[aoc(day12, part1)]
 pub fn solve_part1(input: &HashMap<String, Vec<String>>) -> i32 {
-    let mut visited = HashSet::new();
-    let mut queue: VecDeque<String> = VecDeque::new();
+    let visited = HashSet::new();
 
     // queue.push_back("start".to_string());
 
@@ -165,8 +164,7 @@ pub fn recursive_seach_2(
 
 #[aoc(day12, part2)]
 pub fn solve_part2(input: &HashMap<String, Vec<String>>) -> i32 {
-    let mut visited = HashMap::new();
-    let mut queue: VecDeque<String> = VecDeque::new();
+    let visited = HashMap::new();
 
     // queue.push_back("start".to_string());
 

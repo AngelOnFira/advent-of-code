@@ -1,4 +1,3 @@
-use std::thread::current;
 
 pub struct Instruction {}
 
@@ -29,7 +28,6 @@ pub fn solve_part1(input: &[Vec<char>]) -> i32 {
 
     // Stop at the first incorrect closing character on each corrupted line.
 
-    let mut score = 0;
 
     input
         .iter()
@@ -44,13 +42,6 @@ pub fn solve_part1(input: &[Vec<char>]) -> i32 {
 fn parse_chunk(input: &Vec<char>, pos: usize) -> Result<usize, Option<i32>> {
     let first_char = input[pos];
 
-    let closing_test = match first_char {
-        ')' => Err(Some(3)),
-        ']' => Err(Some(57)),
-        '}' => Err(Some(1197)),
-        '>' => Err(Some(25137)),
-        _ => Ok(0),
-    }?;
 
     // While we don't have our closing character, keep parsing
     let this_closing_char = match first_char {

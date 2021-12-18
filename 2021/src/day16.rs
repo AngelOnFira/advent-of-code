@@ -212,7 +212,6 @@ pub fn parse_packet(input: Vec<u8>) -> Packet {
             }
         }
 
-        _ => panic!("Invalid type ID: {}", type_id),
     };
 
     packet
