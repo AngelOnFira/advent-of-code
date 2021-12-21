@@ -28,7 +28,7 @@ pub fn solve_part1(input: &Vec<Vec<i32>>) -> i32 {
     //
     // Use dijkstra's algorithm
 
-    let mut grid = input.clone();
+    let grid = input.clone();
     let mut minimium_distance_to_pos = HashMap::new();
 
     // Initialize the grid with the first element

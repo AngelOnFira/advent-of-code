@@ -1,7 +1,5 @@
 use std::collections::HashSet;
 
-use regex::Regex;
-
 pub struct Instruction {}
 
 #[aoc_generator(day9)]

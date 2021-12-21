@@ -134,22 +134,16 @@ pub fn solve_part1(input: &HashMap<i32, Scanner>) -> i32 {
     for scanner_num in 0..*input.keys().max().unwrap() + 1 {
         let mut scanner = input.get(&scanner_num).unwrap().clone();
 
-        'outer: for x in -500..500 {
-            for y in -500..500 {
-                for z in -500..500 {
-                    for perm in 0..24 {
-                        let rotated_beacons = scanner.rotate(perm, (x, y, z));
+        // for perm in 0..24 {
+        //     let rotated_beacons = scanner.rotate(perm, (x, y, z));
 
-                        let overlap_count = baseline_set.intersection(&rotated_beacons).count();
+        //     let overlap_count = baseline_set.intersection(&rotated_beacons).count();
 
-                        if overlap_count >= 12 {
-                            found_beacons.extend(rotated_beacons);
-                            break 'outer;
-                        }
-                    }
-                }
-            }
-        }
+        //     if overlap_count >= 12 {
+        //         found_beacons.extend(rotated_beacons);
+        //         // break 'outer;
+        //     }
+        // }
 
         // Find the permutation with the largest number of shared beacons
         // let mut max_overlap_count = 0;

@@ -1,5 +1,3 @@
-use regex::Regex;
-
 pub struct Instruction {}
 
 #[aoc_generator(day16)]
