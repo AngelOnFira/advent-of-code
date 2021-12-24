@@ -93,32 +93,44 @@ pub fn solve_part2(_: &str) -> i128 {
     while old_lookup_map.len() > 0 {
         let mut new_lookup_map: HashMap<(i128, i128, i128, i128, i128), i128> = HashMap::new();
         for (state, val) in old_lookup_map.iter() {
-            for i in 0..3 {
-                let new_state;
-                if state.4 == 0 {
-                    let mut new_pos = state.1 + i;
-                    while new_pos > 10 {
-                        new_pos -= 10;
-                    }
-                    new_state = (state.0, new_pos, state.2, state.3 + new_pos, 1);
-                } else {
-                    let mut new_pos = state.0 + i;
-                    while new_pos > 10 {
-                        new_pos -= 10;
-                    }
-                    new_state = (new_pos, state.1, state.2 + new_pos, state.3, 0);
+            let turn_hashmap: HashMap<(i128, i128, i128, i128, i128), i128> = HashMap::new();
+            for roll in 0..3 {
+                let state_iter;
+                if roll == 0 {
+                    state_iter = vec![state].iter();
+                } else if roll == 1 {
+                    state_iter = turn_hashmap
+                        .iter()
+                        .collect::<Vec<(i128, i128, i128, i128, i128), i128>>()
+                        .into_iter();
                 }
-                
-                if new_state.2 >= score_to_reach {
-                    players_wins[0] += val;
-                } else {
-                    *new_lookup_map.entry(new_state).or_insert(0) += val;
-                }
+                for i in 0..3 {
+                    let new_state;
+                    if state.4 == 0 {
+                        let mut new_pos = state.1 + i;
+                        while new_pos > 10 {
+                            new_pos -= 10;
+                        }
+                        new_state = (state.0, new_pos, state.2, state.3 + new_pos, 1);
+                    } else {
+                        let mut new_pos = state.0 + i;
+                        while new_pos > 10 {
+                            new_pos -= 10;
+                        }
+                        new_state = (new_pos, state.1, state.2 + new_pos, state.3, 0);
+                    }
 
-                if new_state.3 >= score_to_reach {
-                    players_wins[1] += val;
-                } else {
-                    *new_lookup_map.entry(new_state).or_insert(0) += val;
+                    if new_state.2 >= score_to_reach {
+                        players_wins[0] += val;
+                    } else {
+                        *turn_hashmap.entry(new_state).or_insert(0) += val;
+                    }
+
+                    if new_state.3 >= score_to_reach {
+                        players_wins[1] += val;
+                    } else {
+                        *turn_hashmap.entry(new_state).or_insert(0) += val;
+                    }
                 }
             }
         }
