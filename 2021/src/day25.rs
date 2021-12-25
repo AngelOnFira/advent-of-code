@@ -11,8 +11,11 @@ pub enum Place {
     Empty,
 }
 
+const xlen: usize = 8;
+const ylen: usize = 7;
+
 #[aoc_generator(day25)]
-pub fn input_generator(input: &str) -> HashMap<(i32, i32), Place> {
+pub fn input_generator(input: &str) -> [[Place; xlen]; ylen] {
     // v...>>.vv>
     // .vv>>.vv..
     // >>.>v>...v
@@ -23,15 +26,15 @@ pub fn input_generator(input: &str) -> HashMap<(i32, i32), Place> {
     // v.v..>>v.v
     // ....v..v.>
 
-    let mut map = HashMap::new();
+    let mut map = [[Place::Empty; xlen]; ylen];
 
     input.lines().enumerate().for_each(|(y, line)| {
         line.chars().enumerate().for_each(|(x, c)| {
-            match c {
-                '>' => map.insert((x as i32, y as i32), Place::East),
-                'v' => map.insert((x as i32, y as i32), Place::South),
-                '.' => map.insert((x as i32, y as i32), Place::Empty),
-                _ => panic!("Unknown character: {}", c),
+            map[y][x] = match c {
+                '>' => Place::East,
+                'v' => Place::South,
+                '.' => Place::Empty,
+                _ => panic!("Unknown character {}", c),
             };
         });
     });
@@ -40,72 +43,62 @@ pub fn input_generator(input: &str) -> HashMap<(i32, i32), Place> {
 }
 
 #[aoc(day25, part1)]
-pub fn solve_part1(input: &HashMap<(i32, i32), Place>) -> i32 {
+pub fn solve_part1(input: &[[Place; xlen]; ylen]) -> i32 {
     let mut old_map = input.clone();
-
-    let max_x = *old_map.keys().map(|(x, _)| x).max().unwrap();
-    let min_x = *old_map.keys().map(|(x, _)| x).min().unwrap();
-    let max_y = *old_map.keys().map(|(_, y)| y).max().unwrap();
-    let min_y = *old_map.keys().map(|(_, y)| y).min().unwrap();
 
     let mut i = 0;
     loop {
         i += 1;
-        let mut new_map = HashMap::new();
+        let mut new_map = old_map.clone();
 
         // Move all the east facing first
-        old_map.iter().for_each(|(k, v)| {
-            if let Place::East = *v {
-                let mut new_x = k.0 + 1;
-                let mut new_y = k.1;
+        for y in 0..ylen {
+            for x in 0..xlen {
+                if let Place::East = old_map[y][x] {
+                    let mut new_x = x + 1;
+                    let mut new_y = y;
 
-                // If were going over the edge, wrap around
-                if new_x > max_x {
-                    new_x = min_x;
+                    if new_x == xlen {
+                        new_x = 0;
+                    }
+
+                    // If this space is empty, move to it
+                    if old_map[new_y][new_x] == Place::Empty {
+                        new_map[new_y][new_x] = Place::East;
+                        new_map[new_y][x] = Place::Empty;
+                    }
                 }
-
-                let new_pos = (new_x, new_y);
-
-                // If it's empty, move there
-                if let Place::Empty = old_map.get(&new_pos).unwrap_or(&Place::Empty) {
-                    new_map.insert(new_pos, Place::East)
-                } else {
-                    new_map.insert(*k, Place::East)
-                };
             }
-        });
+        }
+
+        let old_map_2 = new_map.clone();
 
         // Move all the south facing next
+        for y in 0..ylen {
+            for x in 0..xlen {
+                if let Place::South = old_map_2[y][x] {
+                    let mut new_x = x;
+                    let mut new_y = y + 1;
 
-        new_map.clone().iter().for_each(|(k, v)| {
-            if let Place::South = *v {
-                let mut new_x = k.0;
-                let mut new_y = k.1 + 1;
+                    if new_y == ylen {
+                        new_y = 0;
+                    }
 
-                // If were going over the edge, wrap around
-                if new_y > max_y {
-                    new_y = min_y;
+                    // If this space is empty, move to it
+                    if old_map_2[new_y][new_x] == Place::Empty {
+                        new_map[new_y][new_x] = Place::South;
+                        new_map[y][new_x] = Place::Empty;
+                    }
                 }
-
-                let new_pos = (new_x, new_y);
-
-                // If it's empty, move there
-                if let Place::Empty = new_map.get(&new_pos).unwrap_or(&Place::Empty) {
-                    new_map.insert(new_pos, Place::South)
-                } else {
-                    new_map.insert(*k, Place::South)
-                };
             }
-        });
+        }
 
         // Draw the new map
-        for y in min_y..=max_y {
-            for x in min_x..=max_x {
-                let pos = (x, y);
-                let place = new_map.get(&pos).unwrap_or(&Place::Empty);
+        for y in 0..ylen {
+            for x in 0..xlen {
                 print!(
                     "{}",
-                    match place {
+                    match new_map[y][x] {
                         Place::East => '>',
                         Place::South => 'v',
                         Place::Empty => '.',
@@ -114,18 +107,23 @@ pub fn solve_part1(input: &HashMap<(i32, i32), Place>) -> i32 {
             }
             println!();
         }
+        println!();
 
         if new_map == old_map {
             break;
         }
 
-        old_map = new_map;
+        if i > 10 {
+            break;
+        }
+
+        old_map = new_map.clone();
     }
 
     i
 }
 
 #[aoc(day25, part2)]
-pub fn solve_part2(input: &HashMap<(i32, i32), Place>) -> i32 {
+pub fn solve_part2(input: &[[Place; xlen]; ylen]) -> i32 {
     3
 }
