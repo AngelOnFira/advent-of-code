@@ -20,6 +20,7 @@ extern crate aoc_runner_derive;
 // // pub mod day22;
 // // pub mod day23;
 pub mod day24;
+pub mod day25;
 // pub mod day4;
 // pub mod day5;
 // pub mod day6;
