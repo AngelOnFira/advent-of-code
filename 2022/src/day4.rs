@@ -1,125 +1,54 @@
-use std::collections::HashSet;
+use std::{cmp::min, collections::HashSet};
 
 use itertools::Itertools;
+use regex::Regex;
 
-#[aoc(day4, part1)]
-pub fn solve_part1(input: &str) -> i64 {
+#[aoc_generator(day4)]
+fn parse_input_day4(input: &str) -> Vec<(i32, i32, i32, i32)> {
     // 21-81,20-96
     // 14-80,14-79
     // 87-89,7-88
+    let re = Regex::new(r"(?P<a>\d+)-(?P<b>\d+),(?P<c>\d+)-(?P<d>\d+)").unwrap();
 
     input
         .lines()
-        .map(|x| {
-            let first = x
-                .split(',')
-                .next()
-                .unwrap()
-                .split('-')
-                .next()
-                .unwrap()
-                .parse::<i64>()
-                .unwrap();
-            let second = x
-                .split(',')
-                .next()
-                .unwrap()
-                .split('-')
-                .last()
-                .unwrap()
-                .parse::<i64>()
-                .unwrap();
-            let third = x
-                .split(',')
-                .last()
-                .unwrap()
-                .split('-')
-                .next()
-                .unwrap()
-                .parse::<i64>()
-                .unwrap();
-            let fourth = x
-                .split(',')
-                .last()
-                .unwrap()
-                .split('-')
-                .last()
-                .unwrap()
-                .parse::<i64>()
-                .unwrap();
+        .map(|pairs| {
+            let data = re.captures(pairs).unwrap();
+            (
+                data["a"].parse::<i32>().unwrap(),
+                data["b"].parse::<i32>().unwrap(),
+                data["c"].parse::<i32>().unwrap(),
+                data["d"].parse::<i32>().unwrap(),
+            )
+        })
+        .collect()
+}
 
-            // Find if either range fits into the other
-            if first >= third && second <= fourth {
-                true
-            } else if third >= first && fourth <= second {
-                true
-            } else {
-                false
-            }
+#[aoc(day4, part1)]
+pub fn solve_part1(input: &Vec<(i32, i32, i32, i32)>) -> i64 {
+    input
+        .iter()
+        .map(|x| {
+            let range_a = (x.0..=x.1).collect::<HashSet<_>>();
+            let range_b = (x.2..=x.3).collect::<HashSet<_>>();
+
+            range_a.intersection(&range_b).count() == min(range_a.len(), range_b.len())
         })
         .filter(|x| *x)
         .count() as i64
 }
 
 #[aoc(day4, part2)]
-pub fn solve_part2(input: &str) -> i64 {
-    // 21-81,20-96
-    // 14-80,14-79
-    // 87-89,7-88
-
+pub fn solve_part2(input: &Vec<(i32, i32, i32, i32)>) -> i64 {
     input
-        .lines()
+        .iter()
         .map(|x| {
-            let first = x
-                .split(',')
-                .next()
-                .unwrap()
-                .split('-')
-                .next()
-                .unwrap()
-                .parse::<i64>()
-                .unwrap();
-            let second = x
-                .split(',')
-                .next()
-                .unwrap()
-                .split('-')
-                .last()
-                .unwrap()
-                .parse::<i64>()
-                .unwrap();
-            let third = x
-                .split(',')
-                .last()
-                .unwrap()
-                .split('-')
-                .next()
-                .unwrap()
-                .parse::<i64>()
-                .unwrap();
-            let fourth = x
-                .split(',')
-                .last()
-                .unwrap()
-                .split('-')
-                .last()
-                .unwrap()
-                .parse::<i64>()
-                .unwrap();
-
-            // Same as part one, see if the ranges overlap at all
-            (first..=second)
+            (x.0..=x.1)
                 .collect::<HashSet<_>>()
-                .intersection(&(third..=fourth).collect::<HashSet<_>>())
+                .intersection(&(x.2..=x.3).collect::<HashSet<_>>())
                 .count()
                 > 0
         })
         .filter(|x| *x)
         .count() as i64
-}
-
-#[cfg(test)]
-mod tests {
-    // use super::solve_part1 as part1;
-    // use super::solve_part2 as part2;
 }
