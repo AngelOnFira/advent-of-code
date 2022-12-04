@@ -28,13 +28,12 @@ fn parse_input_day4(input: &str) -> Vec<(i32, i32, i32, i32)> {
 pub fn solve_part1(input: &Vec<(i32, i32, i32, i32)>) -> i64 {
     input
         .iter()
-        .map(|x| {
+        .filter(|x| {
             let range_a = (x.0..=x.1).collect::<HashSet<_>>();
             let range_b = (x.2..=x.3).collect::<HashSet<_>>();
 
             range_a.intersection(&range_b).count() == min(range_a.len(), range_b.len())
         })
-        .filter(|x| *x)
         .count() as i64
 }
 
@@ -42,13 +41,12 @@ pub fn solve_part1(input: &Vec<(i32, i32, i32, i32)>) -> i64 {
 pub fn solve_part2(input: &Vec<(i32, i32, i32, i32)>) -> i64 {
     input
         .iter()
-        .map(|x| {
+        .filter(|x| {
             (x.0..=x.1)
                 .collect::<HashSet<_>>()
                 .intersection(&(x.2..=x.3).collect::<HashSet<_>>())
                 .count()
                 > 0
         })
-        .filter(|x| *x)
         .count() as i64
 }
