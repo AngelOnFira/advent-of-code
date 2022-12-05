@@ -34,10 +34,10 @@ fn parse_input_day5(input: &str) -> InputType {
 // [P] [C] [P] [Q] [J] [J] [P] [H] [Z]
 // [C] [T] [H] [T] [H] [P] [G] [L] [V]
 // [F] [W] [B] [L] [P] [D] [L] [N] [G]
-//  1   2   3   4   5   6   7   8   9 
+//  1   2   3   4   5   6   7   8   9
 
 #[aoc(day5, part1)]
-pub fn solve_part1(input: &InputType) -> i64 {
+pub fn solve_part1(input: &InputType) -> String {
     // Set up the initial state
     let mut state = vec![
         // R Q G P C F
@@ -61,85 +61,61 @@ pub fn solve_part1(input: &InputType) -> i64 {
     ];
 
     for (amount, from, to) in input {
-        for column in state.iter() {
-            for row in column.iter() {
-                print!("{:2}", row);
-            }
-            println!("");
-        }
-
         for _ in 0..*amount {
-            dbg!(from, to);
             let element = state[*from as usize].remove(0);
             state[*to as usize].insert(0, element);
         }
-
-        
     }
 
-    // Print out the element at the top of each column
-    let mut result = 0;
-
+    let mut output = String::new();
     for column in state.iter() {
-        print!("{}", column[0]);
+        output.push_str(column[0]);
     }
 
-    0
+    output
 }
 
 #[aoc(day5, part2)]
-pub fn solve_part2(input: &InputType) -> i64 {
-        // Set up the initial state
-        let mut state = vec![
-            // R Q G P C F
-            vec!["R", "Q", "G", "P", "C", "F"],
-            // P C T W
-            vec!["P", "C", "T", "W"],
-            // C M P H B
-            vec!["C", "M", "P", "H", "B"],
-            // R P M S Q T L
-            vec!["R", "P", "M", "S", "Q", "T", "L"],
-            // N G V Z J H P
-            vec!["N", "G", "V", "Z", "J", "H", "P"],
-            // J P D
-            vec!["J", "P", "D"],
-            // R T J F Z P G L
-            vec!["R", "T", "J", "F", "Z", "P", "G", "L"],
-            // J T P F C H L N
-            vec!["J", "T", "P", "F", "C", "H", "L", "N"],
-            // W C T H Q Z V G
-            vec!["W", "C", "T", "H", "Q", "Z", "V", "G"],
-        ];
-    
-        for (amount, from, to) in input {
-            for column in state.iter() {
-                for row in column.iter() {
-                    print!("{:2}", row);
-                }
-                println!("");
-            }
-    
-            let mut queue = Vec::new();
-            for _ in 0..*amount {
-                dbg!(from, to);
-                let element = state[*from as usize].remove(0);
+pub fn solve_part2(input: &InputType) -> String {
+    // Set up the initial state
+    let mut state = vec![
+        // R Q G P C F
+        vec!["R", "Q", "G", "P", "C", "F"],
+        // P C T W
+        vec!["P", "C", "T", "W"],
+        // C M P H B
+        vec!["C", "M", "P", "H", "B"],
+        // R P M S Q T L
+        vec!["R", "P", "M", "S", "Q", "T", "L"],
+        // N G V Z J H P
+        vec!["N", "G", "V", "Z", "J", "H", "P"],
+        // J P D
+        vec!["J", "P", "D"],
+        // R T J F Z P G L
+        vec!["R", "T", "J", "F", "Z", "P", "G", "L"],
+        // J T P F C H L N
+        vec!["J", "T", "P", "F", "C", "H", "L", "N"],
+        // W C T H Q Z V G
+        vec!["W", "C", "T", "H", "Q", "Z", "V", "G"],
+    ];
 
-                queue.push(element);
-            }
+    for (amount, from, to) in input {
+        let mut queue = Vec::new();
+        for _ in 0..*amount {
+            let element = state[*from as usize].remove(0);
 
-            for element in queue.iter().rev() {
-                state[*to as usize].insert(0, element);
-            }
-            
-            
+            queue.push(element);
         }
-    
-        // Print out the element at the top of each column
-        let mut result = 0;
-    
-        for column in state.iter() {
-            print!("{}", column[0]);
+
+        for element in queue.iter().rev() {
+            state[*to as usize].insert(0, element);
         }
-    
-        0
+    }
+
+    let mut output = String::new();
+    for column in state.iter() {
+        output.push_str(column[0]);
+    }
+
+    output
 }
