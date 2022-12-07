@@ -73,12 +73,6 @@ fn parse_input_day7(input: &str) -> InputType {
 }
 
 #[derive(Debug, Clone)]
-enum State {
-    Command,
-    InLs,
-}
-
-#[derive(Debug, Clone)]
 enum FileKind {
     Dir { size: i32, name: String },
     File { size: i32, name: String },
@@ -86,15 +80,12 @@ enum FileKind {
 
 type FileTree = HashMap<String, (i32, Vec<FileKind>)>;
 
-#[aoc(day7, part1)]
-pub fn solve_part1(input: &InputType) -> i32 {
+fn parse_file_tree(input: &InputType) -> FileTree {
     let mut file_tree: FileTree = HashMap::new();
-
     let mut directory_stack = vec!["".to_string()];
-    let mut state = State::Command;
 
     for line in input {
-        dbg!(line.clone());
+        let curr_path = directory_stack.iter().join("/");
 
         match line {
             Line::Command(command) => match command {
@@ -114,14 +105,12 @@ pub fn solve_part1(input: &InputType) -> i32 {
                         }
                     }
                 }
-                Command::Ls => {
-                    state = State::InLs;
-                }
+                Command::Ls => {}
             },
             Line::FileEntry(file_entry) => match file_entry {
                 FileEntry::Dir(dir) => {
                     file_tree
-                        .entry(directory_stack.iter().join("/"))
+                        .entry(curr_path)
                         .or_insert((0, vec![]))
                         .1
                         .push(FileKind::Dir {
@@ -131,7 +120,7 @@ pub fn solve_part1(input: &InputType) -> i32 {
                 }
                 FileEntry::File { size, name } => {
                     file_tree
-                        .entry(directory_stack.iter().join("/"))
+                        .entry(curr_path)
                         .or_insert((0, vec![]))
                         .1
                         .push(FileKind::File {
@@ -142,6 +131,13 @@ pub fn solve_part1(input: &InputType) -> i32 {
             },
         }
     }
+
+    file_tree
+}
+
+#[aoc(day7, part1)]
+pub fn solve_part1(input: &InputType) -> i32 {
+    let mut file_tree = parse_file_tree(input);
 
     // Get the size of each directory through recursion
     fn get_size(dir: &str, file_tree: Box<&FileTree>) -> i32 {
@@ -154,7 +150,7 @@ pub fn solve_part1(input: &InputType) -> i32 {
                 }
                 FileKind::File {
                     size: file_size,
-                    name,
+                    name: _,
                 } => {
                     size += file_size;
                 }
@@ -184,60 +180,7 @@ pub fn solve_part1(input: &InputType) -> i32 {
 
 #[aoc(day7, part2)]
 pub fn solve_part2(input: &InputType) -> i32 {
-    let mut file_tree: FileTree = HashMap::new();
-
-    let mut directory_stack = vec!["".to_string()];
-    let mut state = State::Command;
-
-    for line in input {
-        dbg!(line.clone());
-
-        match line {
-            Line::Command(command) => match command {
-                Command::Cd(dir) => {
-                    match dir.as_str() {
-                        // If the directory is /, then we're at the root.
-                        "/" => {
-                            directory_stack = vec!["".to_string()];
-                        }
-                        // If the directory is .., then we're going up a directory.
-                        ".." => {
-                            directory_stack.pop();
-                        }
-                        // Otherwise, we're going into a directory.
-                        x => {
-                            directory_stack.push(x.to_string());
-                        }
-                    }
-                }
-                Command::Ls => {
-                    state = State::InLs;
-                }
-            },
-            Line::FileEntry(file_entry) => match file_entry {
-                FileEntry::Dir(dir) => {
-                    file_tree
-                        .entry(directory_stack.iter().join("/"))
-                        .or_insert((0, vec![]))
-                        .1
-                        .push(FileKind::Dir {
-                            size: 0 as i32,
-                            name: dir.clone(),
-                        });
-                }
-                FileEntry::File { size, name } => {
-                    file_tree
-                        .entry(directory_stack.iter().join("/"))
-                        .or_insert((0, vec![]))
-                        .1
-                        .push(FileKind::File {
-                            size: *size,
-                            name: name.clone(),
-                        });
-                }
-            },
-        }
-    }
+    let mut file_tree = parse_file_tree(input);
 
     // Get the size of each directory through recursion
     fn get_size(dir: &str, file_tree: Box<&FileTree>) -> i32 {
@@ -250,7 +193,7 @@ pub fn solve_part2(input: &InputType) -> i32 {
                 }
                 FileKind::File {
                     size: file_size,
-                    name,
+                    name: _,
                 } => {
                     size += file_size;
                 }
@@ -271,20 +214,11 @@ pub fn solve_part2(input: &InputType) -> i32 {
 
     let root_size = file_tree.get("").unwrap().0;
 
-    let total_space = 70000000;
-    let needed_space = 30000000;
-
-    let space_clean_required = needed_space - (total_space - root_size);
-
-    dbg!(space_clean_required);
-
     let sizes = file_tree
         .iter()
-        .filter(|(_, (size, _))| *size >= space_clean_required)
+        .filter(|(_, (size, _))| *size >= 30000000 - (70000000 - root_size))
         .map(|(_, (size, _))| size)
         .collect::<Vec<&i32>>();
-
-    // dbg!(&sizes);
 
     // Sort it
     let mut sorted_sizes = sizes.clone();
