@@ -83,8 +83,6 @@ pub fn solve_part1(input: &InputType) -> i32 {
                 }
             }
 
-            println!("{} {} {} {}", left, right, up, down);
-
             left || right || up || down
         })
         .count() as i32
@@ -145,8 +143,6 @@ pub fn solve_part2(input: &InputType) -> i32 {
                 }
                 down_count += 1;
             }
-
-            println!("{} {} {} {}", left_count, right_count, up_count, down_count);
 
             left_count * right_count * up_count * down_count
         })
