@@ -74,8 +74,8 @@ fn parse_input_day7(input: &str) -> InputType {
 
 #[derive(Debug, Clone)]
 enum FileKind {
-    Dir { size: i32, name: String },
-    File { size: i32, name: String },
+    Dir { name: String },
+    File { size: i32 },
 }
 
 type FileTree = HashMap<String, (i32, Vec<FileKind>)>;
@@ -113,20 +113,14 @@ fn parse_file_tree(input: &InputType) -> FileTree {
                         .entry(curr_path)
                         .or_insert((0, vec![]))
                         .1
-                        .push(FileKind::Dir {
-                            size: 0 as i32,
-                            name: dir.clone(),
-                        });
+                        .push(FileKind::Dir { name: dir.clone() });
                 }
-                FileEntry::File { size, name } => {
+                FileEntry::File { size, name: _ } => {
                     file_tree
                         .entry(curr_path)
                         .or_insert((0, vec![]))
                         .1
-                        .push(FileKind::File {
-                            size: *size,
-                            name: name.clone(),
-                        });
+                        .push(FileKind::File { size: *size });
                 }
             },
         }
@@ -135,36 +129,33 @@ fn parse_file_tree(input: &InputType) -> FileTree {
     file_tree
 }
 
+// Get the size of each directory through recursion
+fn get_size(dir: &str, file_tree: &FileTree) -> i32 {
+    let mut size = 0;
+    for file in file_tree.get(dir).unwrap().1.clone() {
+        match file {
+            FileKind::Dir { name } => {
+                let new_name = format!("{}/{}", dir, name);
+                size += get_size(&new_name, &file_tree.clone());
+            }
+            FileKind::File { size: file_size } => {
+                size += file_size;
+            }
+        }
+    }
+
+    size
+}
+
 #[aoc(day7, part1)]
 pub fn solve_part1(input: &InputType) -> i32 {
     let mut file_tree = parse_file_tree(input);
-
-    // Get the size of each directory through recursion
-    fn get_size(dir: &str, file_tree: Box<&FileTree>) -> i32 {
-        let mut size = 0;
-        for file in file_tree.get(dir).unwrap().1.clone() {
-            match file {
-                FileKind::Dir { size: _, name } => {
-                    let new_name = format!("{}/{}", dir, name);
-                    size += get_size(&new_name, Box::new(&file_tree.clone()));
-                }
-                FileKind::File {
-                    size: file_size,
-                    name: _,
-                } => {
-                    size += file_size;
-                }
-            }
-        }
-
-        size
-    }
 
     let file_tree_clone = file_tree.clone();
 
     // Go through each directory and set the size
     for (dir, files) in file_tree.iter_mut() {
-        let size = get_size(dir, Box::new(&file_tree_clone));
+        let size = get_size(dir, &file_tree_clone);
 
         files.0 = size;
     }
@@ -182,32 +173,11 @@ pub fn solve_part1(input: &InputType) -> i32 {
 pub fn solve_part2(input: &InputType) -> i32 {
     let mut file_tree = parse_file_tree(input);
 
-    // Get the size of each directory through recursion
-    fn get_size(dir: &str, file_tree: Box<&FileTree>) -> i32 {
-        let mut size = 0;
-        for file in file_tree.get(dir).unwrap().1.clone() {
-            match file {
-                FileKind::Dir { size: _, name } => {
-                    let new_name = format!("{}/{}", dir, name);
-                    size += get_size(&new_name, Box::new(&file_tree.clone()));
-                }
-                FileKind::File {
-                    size: file_size,
-                    name: _,
-                } => {
-                    size += file_size;
-                }
-            }
-        }
-
-        size
-    }
-
     let file_tree_clone = file_tree.clone();
 
     // Go through each directory and set the size
     for (dir, files) in file_tree.iter_mut() {
-        let size = get_size(dir, Box::new(&file_tree_clone));
+        let size = get_size(dir, &file_tree_clone);
 
         files.0 = size;
     }
