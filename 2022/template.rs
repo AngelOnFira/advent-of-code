@@ -6,6 +6,8 @@ use std::{
 use itertools::Itertools;
 use regex::Regex;
 
+type InputType = Vec<(String, i32)>;
+
 #[aoc_generator(day8)]
 fn parse_input_day8(input: &str) -> InputType {
     // Chars
