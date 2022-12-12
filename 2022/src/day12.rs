@@ -94,26 +94,16 @@ pub fn solve_part1(input: &InputType) -> i32 {
     let mut pos = start_pos.clone();
 
     let mut explored: HashSet<(i32, i32)> = HashSet::new();
-    let mut height = 0;
 
     let mut to_check = vec![(pos.clone(), 0, Vec::new())];
     explored.insert(pos.clone());
 
     while pos != end_pos {
-        // Dbg the current pos
-        println!("Pos: {:?}", pos);
         // Get the next tile to check
         let ((x, y), current_distance, path) = to_check.remove(0);
 
         // If we've arrived at the end, return the distance
         if (x, y) == end_pos {
-            // Print the path
-            println!(
-                "Path: {}",
-                path.iter()
-                    .map(|(x, y)| format!("({}, {})", x, y))
-                    .join(" -> ")
-            );
             return current_distance;
         }
 
@@ -146,7 +136,7 @@ pub fn solve_part1(input: &InputType) -> i32 {
                 let tile = input.get(&(*x, *y)).unwrap();
 
                 match tile {
-                    Tile::Height(h) => (*h - current_height).abs() <= 1,
+                    Tile::Height(h) => *h <= current_height || *h == current_height + 1,
                     Tile::End => current_height >= 24,
                     _ => false,
                 }
@@ -170,95 +160,110 @@ pub fn solve_part1(input: &InputType) -> i32 {
             // Add to the to_check list
             to_check.push((tile, current_distance + 1, this_path));
         }
-
-        // Sort the to_check list by distance
-        // to_check.sort_by(|(_, a), (_, b)| a.cmp(b));
     }
 
-    0
-
-    // find_path_recursive(input, pos, end_pos, &mut explored, path).unwrap().len() as i32 - 1
-
-    // Return the length of the path
-    // path.len() as i32 - 1
-}
-
-fn find_path_recursive(
-    input: &InputType,
-    pos: (i32, i32),
-    end_pos: (i32, i32),
-    explored: &mut HashSet<(i32, i32)>,
-    mut path: Vec<(i32, i32)>,
-) -> Option<Vec<(i32, i32)>> {
-    // If we've already explored this position, return None
-    if explored.contains(&pos) {
-        return None;
-    }
-
-    // Print out the position
-    println!("Pos: {:?}", pos);
-
-    // If we've reached the end, return the path
-    if pos == end_pos {
-        // Print the path length
-        println!("Path length: {}", path.len());
-
-        return Some(path.clone());
-    }
-
-    // Add the current position to the explored set
-    explored.insert(pos.clone());
-
-    // Add the current position to the path
-    path.push(pos.clone());
-
-    // Find the height of the current tile
-    let current_height = match input.get(&pos) {
-        Some(Tile::Height(h)) => *h,
-        _ => 0,
-    };
-
-    // Find the adjacent tiles
-    let adjacent_tiles = vec![
-        (pos.0 - 1, pos.1),
-        (pos.0 + 1, pos.1),
-        (pos.0, pos.1 - 1),
-        (pos.0, pos.1 + 1),
-    ];
-
-    // Find the adjacent tiles that are within the height limit
-    let adjacent_tiles = adjacent_tiles
-        .iter()
-        .filter(|(x, y)| {
-            let tile = input.get(&(*x, *y));
-            match tile {
-                Some(Tile::Height(h)) => (h - current_height).abs() <= 1,
-                _ => false,
-            }
-        })
-        .map(|(x, y)| (*x, *y))
-        .collect_vec();
-
-    // Find the shortest path from the adjacent tiles
-    let mut shortest_path: Option<Vec<(i32, i32)>> = None;
-    for tile in adjacent_tiles {
-        // If we've looked at this tile before, skip it
-        if explored.contains(&tile) {
-            continue;
-        }
-
-        let path = find_path_recursive(input, tile, end_pos, explored, path.clone());
-        if let Some(p) = path {
-            if shortest_path.clone().is_none() || p.len() < shortest_path.clone().unwrap().len() {
-                shortest_path = Some(p);
-            }
-        }
-    }
-
-    shortest_path
+    unreachable!()
 }
 
 #[aoc(day12, part2)]
 pub fn solve_part2(input: &InputType) -> i32 {
-    0
+    // Find the position of the end
+    let end_pos = input
+        .iter()
+        .find(|(_, v)| **v == Tile::End)
+        .unwrap()
+        .0
+        .clone();
+
+    // Find the shortest path from any position marked a
+    input
+        .iter()
+        .filter(|(_, v)| **v == Tile::Height(0))
+        .map(|(pos, _)| {
+            let mut pos = *pos;
+
+            let mut explored: HashSet<(i32, i32)> = HashSet::new();
+
+            let mut to_check = vec![(pos.clone(), 0, Vec::new())];
+            explored.insert(pos.clone());
+
+            while pos != end_pos {
+                // If we don't have a next tile, return a large number
+                if to_check.is_empty() {
+                    return 1000000;
+                }
+
+                // Get the next tile to check
+                let ((x, y), current_distance, path) = to_check.remove(0);
+
+                // If we've arrived at the end, return the distance
+                if (x, y) == end_pos {
+                    // Print the path
+                    // println!(
+                    //     "Path: {}",
+                    //     path.iter()
+                    //         .map(|(x, y)| format!("({}, {})", x, y))
+                    //         .join(" -> ")
+                    // );
+                    return current_distance;
+                }
+
+                // Update the pos
+                pos = (x, y);
+
+                // Find the adjacent tiles
+                let adjacent_tiles = vec![
+                    (pos.0 - 1, pos.1),
+                    (pos.0 + 1, pos.1),
+                    (pos.0, pos.1 - 1),
+                    (pos.0, pos.1 + 1),
+                ];
+
+                // Find the height of the current tile
+                let current_height = match input.get(&pos) {
+                    Some(Tile::Height(h)) => *h,
+                    _ => 0,
+                };
+
+                // Find the adjacent tiles that are within 1 height of the current tile
+                let adjacent_tiles = adjacent_tiles
+                    .iter()
+                    .filter(|(x, y)| {
+                        // If this tile is out of bounds, skip it
+                        if !input.contains_key(&(*x, *y)) {
+                            return false;
+                        }
+
+                        let tile = input.get(&(*x, *y)).unwrap();
+
+                        match tile {
+                            Tile::Height(h) => *h <= current_height || *h == current_height + 1,
+                            Tile::End => current_height >= 24,
+                            _ => false,
+                        }
+                    })
+                    .map(|(x, y)| (*x, *y))
+                    .collect_vec();
+
+                // Add the adjacent tiles to the to_check list
+                for tile in adjacent_tiles {
+                    // If we've already explored this tile, skip it
+                    if explored.contains(&tile) {
+                        continue;
+                    }
+
+                    // Add this to the explored list
+                    explored.insert(tile);
+
+                    let mut this_path = path.clone();
+                    this_path.push(tile);
+
+                    // Add to the to_check list
+                    to_check.push((tile, current_distance + 1, this_path));
+                }
+            }
+
+            unreachable!()
+        })
+        .min().unwrap()
 }
