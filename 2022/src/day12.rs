@@ -265,5 +265,6 @@ pub fn solve_part2(input: &InputType) -> i32 {
 
             unreachable!()
         })
-        .min().unwrap()
+        .min()
+        .unwrap()
 }

@@ -71,7 +71,6 @@ fn parse_input_day11(input: &str) -> InputType {
 //   Test: divisible by 11
 //     If true: throw to monkey 1
 //     If false: throw to monkey 2
-
 // Monkey 7:
 //   Starting items: 81, 58
 //   Operation: new = old + 5
