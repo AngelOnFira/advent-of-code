@@ -20,6 +20,7 @@ num-bigint = "0.4.3"
 num-traits = "0.2.14"
 scan_fmt = "0.2.6"
 eval = "0.4.3"
+chumsky = "0.8.0"
 
 [profile.release]
 overflow-checks = true

@@ -3,10 +3,12 @@ use std::{
     iter::FromIterator,
 };
 
+use chumsky::prelude::*;
+use eval::{eval, to_value, Value};
 use itertools::Itertools;
 use regex::Regex;
 
-type InputType = Vec<(Vec<Token>, Vec<Token>)>;
+type InputType = Vec<(Value, Value)>;
 
 #[derive(Debug)]
 pub enum Token {
@@ -14,6 +16,39 @@ pub enum Token {
     ClosingBracket,
     Comma,
     Number(i32),
+}
+
+#[derive(Debug)]
+enum Expr {
+    Num(f64),
+    Var(String),
+
+    Neg(Box<Expr>),
+    Add(Box<Expr>, Box<Expr>),
+    Sub(Box<Expr>, Box<Expr>),
+    Mul(Box<Expr>, Box<Expr>),
+    Div(Box<Expr>, Box<Expr>),
+
+    Call(String, Vec<Expr>),
+    Let {
+        name: String,
+        rhs: Box<Expr>,
+        then: Box<Expr>,
+    },
+    Fn {
+        name: String,
+        args: Vec<String>,
+        body: Box<Expr>,
+        then: Box<Expr>,
+    },
+}
+
+fn parser() -> impl Parser<char, Expr, Error = Simple<char>> {
+    let int = text::int(10)
+        .map(|s: String| Expr::Num(s.parse().unwrap()))
+        .padded();
+
+    int.then_ignore(end())
 }
 
 #[aoc_generator(day13)]
@@ -28,53 +63,9 @@ fn parse_input_day13(input: &str) -> InputType {
         .into_iter()
         .map(|mut x| {
             // There are 2 lines with information then a break
-            let mut line1 = Vec::new();
-            let mut token_buffer = Vec::new();
-            for char in x.next().unwrap().chars() {
-                match char {
-                    '[' | ']' | ',' => {
-                        if !token_buffer.is_empty() {
-                            line1.push(Token::Number(
-                                token_buffer.iter().join("").parse::<i32>().unwrap(),
-                            ));
-                            token_buffer.clear();
-                        }
-                    }
-                    _ => {}
-                }
-
-                match char {
-                    '[' => line1.push(Token::OpeningBracket),
-                    ']' => line1.push(Token::ClosingBracket),
-                    ',' => line1.push(Token::Comma),
-                    _ => token_buffer.push(char),
-                }
-            }
-
-            let mut line2 = Vec::new();
-            let mut token_buffer = Vec::new();
-            for char in x.next().unwrap().chars() {
-                match char {
-                    '[' | ']' | ',' => {
-                        if !token_buffer.is_empty() {
-                            line2.push(Token::Number(
-                                token_buffer.iter().join("").parse::<i32>().unwrap(),
-                            ));
-                            token_buffer.clear();
-                        }
-                    }
-                    _ => {}
-                }
-
-                match char {
-                    '[' => line2.push(Token::OpeningBracket),
-                    ']' => line2.push(Token::ClosingBracket),
-                    ',' => line2.push(Token::Comma),
-                    _ => token_buffer.push(char),
-                }
-            }
-
-            (line1, line2)
+            let line_1 = eval(x.next().unwrap()).unwrap();
+            let line_2 = eval(x.next().unwrap()).unwrap();
+            (line_1, line_2)
         })
         .collect()
 }
