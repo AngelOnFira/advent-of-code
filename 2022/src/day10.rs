@@ -1,11 +1,4 @@
-use std::{
-    collections::{HashMap, HashSet},
-    iter::FromIterator,
-};
-
 use itertools::Itertools;
-use num_traits::Signed;
-use regex::Regex;
 
 type InputType = Vec<instruction>;
 
@@ -93,7 +86,7 @@ pub fn solve_part2(input: &InputType) -> i32 {
                 } else {
                     print!(".")
                 }
-                if (cycle_count-1) % 40 == 0 {
+                if (cycle_count - 1) % 40 == 0 {
                     println!("");
                 }
 
@@ -107,7 +100,7 @@ pub fn solve_part2(input: &InputType) -> i32 {
                 } else {
                     print!(".")
                 }
-                if (cycle_count-1) % 40 == 0 {
+                if (cycle_count - 1) % 40 == 0 {
                     println!("");
                 }
             }
@@ -121,7 +114,7 @@ pub fn solve_part2(input: &InputType) -> i32 {
                 } else {
                     print!(".")
                 }
-                if (cycle_count-1) % 40 == 0 {
+                if (cycle_count - 1) % 40 == 0 {
                     println!("");
                 }
             }

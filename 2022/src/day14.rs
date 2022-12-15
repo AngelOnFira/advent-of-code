@@ -1,6 +1,5 @@
 use std::{
     collections::{HashMap, HashSet},
-    iter::FromIterator,
 };
 
 use itertools::Itertools;
@@ -61,7 +60,7 @@ pub fn solve_part1(input: &InputType) -> i32 {
     // stops, and another piece of sand spawns. If a piece of sand goes on
     // forever, return the length of the sand hashset.
 
-    let mut moving = true;
+    let moving = true;
     let mut current_sand = sand_spawn;
 
     while moving {
@@ -117,10 +116,10 @@ pub fn solve_part2(input: &InputType) -> i32 {
     // stops, and another piece of sand spawns. If a piece of sand goes on
     // forever, return the length of the sand hashset.
 
-    let mut moving = true;
+    let moving = true;
     let mut current_sand = sand_spawn;
 
-    let mut last_loop = current_sand;
+    let _last_loop = current_sand;
 
     while moving {
         // println!("{:?}", current_sand);
