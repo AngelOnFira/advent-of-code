@@ -75,20 +75,26 @@ pub fn solve_part2(input: &InputType) -> i32 {
         })
         .collect();
 
+    let beacon_positions = input
+        .iter()
+        .map(|((x, y), (bx, by))| (*bx, *by))
+        .collect::<HashSet<_>>();
 
+    let y = 2_000_000;
 
     let x_min = 0;
     let y_min = 0;
     let x_max = 4000000;
     let y_max = 4000000;
 
+    let range = 100_000_000;
+
     // Start by searching in a box around the sensor
 
     // Go over each sensor, draw a diamond shape around it at distance +
     // 1
     let potential_places: HashSet<_> = ranges
-        .clone()
-        .into_par_iter()
+        .iter()
         .map(|r| {
             let mut potential_places = HashSet::new();
 
@@ -113,27 +119,23 @@ pub fn solve_part2(input: &InputType) -> i32 {
 
     println!("Potential places: {}", potential_places.len());
 
-    let place = potential_places
-        .clone()
-        .into_par_iter()
-        .find_first(|(x_check, y_check)| {
-            // Skip if we're outside the range
-            if x_check < &x_min || x_check > &x_max || y_check < &y_min || y_check > &y_max {
-                return false;
-            }
+    potential_places.iter().for_each(|(x_check, y_check)| {
+        // Skip if we're outside the range
+        if *x_check < x_min || *x_check > x_max || *y_check < y_min || *y_check > y_max {
+            return;
+        }
 
-            // Check if this spot is within the range of any other
-            // sensor
-            if ranges.iter().any(|((x2, y2), dist2)| {
-                let dist3 = (x2 - x_check).abs() + (y2 - y_check).abs();
-                dist3 <= *dist2
-            }) {
-                return false;
-            }
-            // Print the position
-            true
-        })
-        .unwrap();
+        // Check if this spot is within the range of any other
+        // sensor
+        if ranges.iter().any(|((x2, y2), dist2)| {
+            let dist3 = (x2 - x_check).abs() + (y2 - y_check).abs();
+            dist3 <= *dist2
+        }) {
+            return;
+        }
+        // Print the position
+        println!("{} {}", x_check, y_check);
+    });
 
-    place.0 * 4_000_000 + place.1
+    0
 }
