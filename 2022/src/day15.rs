@@ -67,13 +67,13 @@ pub fn solve_part1(input: &InputType) -> i32 {
 #[aoc(day15, part2)]
 pub fn solve_part2(input: &InputType) -> i32 {
     // Get the range of each sensor
-    let ranges: Vec<((i32, i32), i32)> = input
-        .iter()
-        .map(|((x, y), (bx, by))| {
-            let dist = (bx - x).abs() + (by - y).abs();
-            ((*x, *y), dist)
-        })
-        .collect();
+let ranges: Vec<((i32, i32), i32)> = input
+    .iter()
+    .map(|((x, y), (bx, by))| {
+        let dist = (bx - x).abs() + (by - y).abs();
+        ((*x, *y), dist)
+    })
+    .collect();
 
     let beacon_positions = input
         .iter()
