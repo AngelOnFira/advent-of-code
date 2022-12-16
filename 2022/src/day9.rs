@@ -1,12 +1,11 @@
 use std::{
     cmp::max,
     collections::{HashMap, HashSet},
-    iter::FromIterator,
 };
 
-use itertools::Itertools;
+
 use num_traits::Signed;
-use regex::Regex;
+
 
 type InputType = Vec<(String, i32)>;
 

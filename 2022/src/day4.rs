@@ -1,6 +1,6 @@
 use std::{cmp::min, collections::HashSet};
 
-use itertools::Itertools;
+
 use regex::Regex;
 
 #[aoc_generator(day4)]

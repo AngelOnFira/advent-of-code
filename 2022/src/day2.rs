@@ -1,4 +1,4 @@
-use itertools::Itertools;
+
 
 #[aoc(day2, part1)]
 pub fn solve_part1(input: &str) -> i64 {

@@ -1,10 +1,9 @@
 use std::{
     collections::{HashMap, HashSet},
-    iter::FromIterator,
 };
 
 use itertools::Itertools;
-use regex::Regex;
+
 
 type InputType = HashMap<(i32, i32), Tile>;
 

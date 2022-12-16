@@ -1,12 +1,9 @@
-use std::{
-    collections::{HashMap, HashSet},
-    iter::FromIterator,
-};
+
 
 use chumsky::prelude::*;
-use eval::{eval, to_value, Value};
+use eval::{eval, Value};
 use itertools::Itertools;
-use regex::Regex;
+
 
 type InputType = Vec<(Value, Value)>;
 
@@ -77,6 +74,6 @@ pub fn solve_part1(input: &InputType) -> i32 {
 }
 
 #[aoc(day13, part2)]
-pub fn solve_part2(input: &InputType) -> i32 {
+pub fn solve_part2(_input: &InputType) -> i32 {
     0
 }

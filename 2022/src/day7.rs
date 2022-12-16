@@ -1,10 +1,9 @@
 use std::{
-    collections::{HashMap, HashSet},
-    iter::FromIterator,
+    collections::{HashMap},
 };
 
 use itertools::Itertools;
-use regex::Regex;
+
 
 type InputType = Vec<Line>;
 

@@ -1,16 +1,7 @@
-use std::{
-    collections::{HashMap, HashSet},
-    iter::FromIterator,
-};
-
-use itertools::Itertools;
-use num_traits::Signed;
-use regex::Regex;
-
 type InputType = Vec<i128>;
 
 #[aoc_generator(day11)]
-fn parse_input_day11(input: &str) -> InputType {
+fn parse_input_day11(_input: &str) -> InputType {
     // Chars
     // input.chars().collect()
 
@@ -98,7 +89,7 @@ struct Test {
 }
 
 #[aoc(day11, part1)]
-pub fn solve_part1(input: &InputType) -> i128 {
+pub fn solve_part1(_input: &InputType) -> i128 {
     let monkey_0 = Monkey {
         starting_items: vec![89, 73, 66, 57, 64, 80],
         operation: Operation::Multiply(3),
@@ -193,7 +184,7 @@ pub fn solve_part1(input: &InputType) -> i128 {
 
     let mut worry_level = 0;
 
-    for round in 0..20 {
+    for _round in 0..20 {
         for i in 0..monkeys.len() {
             // Go over each item in this monkey's inventory
             while monkeys[i].starting_items.len() > 0 {
@@ -239,7 +230,7 @@ pub fn solve_part1(input: &InputType) -> i128 {
 }
 
 #[aoc(day11, part2)]
-pub fn solve_part2(input: &InputType) -> i128 {
+pub fn solve_part2(_input: &InputType) -> i128 {
     let monkey_0 = Monkey {
         starting_items: vec![89, 73, 66, 57, 64, 80],
         operation: Operation::Multiply(3),
@@ -337,9 +328,9 @@ pub fn solve_part2(input: &InputType) -> i128 {
         .map(|monkey| monkey.test.divisor)
         .product::<i128>();
 
-    let mut worry_level = 0;
+    let mut worry_level;
 
-    for round in 0..10000 {
+    for _round in 0..10000 {
         for i in 0..monkeys.len() {
             // Go over each item in this monkey's inventory
             while monkeys[i].starting_items.len() > 0 {
