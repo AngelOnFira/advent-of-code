@@ -6,46 +6,39 @@ use std::{
 use itertools::Itertools;
 use regex::Regex;
 
-type InputType = HashMap<(i32, i32), bool>;
+type InputType = HashSet<(i32, i32)>;
 
 #[aoc_generator(day14)]
 fn parse_input_day14(input: &str) -> InputType {
     // 497,29 -> 497,27 -> 497,29 -> 499,29 -> 499,25 -> 499,29 -> 501,29 -> 501,20 -> 501,29 -> 503,29 -> 503,19 -> 503,29 -> 505,29 -> 505,25 -> 505,29 -> 507,29 -> 507,24 -> 507,29
     // 477,77 -> 477,81 -> 473,81 -> 473,84 -> 484,84 -> 484,81 -> 483,81 -> 483,77
 
-    // Regex
-    let instructions = input
+    input
         .lines()
         .map(|x| {
             let re = Regex::new(r"(\d+),(\d+)").unwrap();
             let mut v = Vec::new();
-            for cap in re.captures_iter(x) {
-                v.push((
-                    cap[1].parse::<i32>().unwrap(),
-                    cap[2].parse::<i32>().unwrap(),
-                ));
-            }
-            v
+            re.captures_iter(x)
+                .tuple_windows()
+                .map(|((x1, y1), (x2, y2))| {
+                    // Return a vec of tuples from x1,y1 to x2,y2
+                    let (x1, y1) = (x1.parse::<i32>().unwrap(), y1.parse::<i32>().unwrap());
+                    let (x2, y2) = (x2.parse::<i32>().unwrap(), y2.parse::<i32>().unwrap());
+                    let (x1, x2) = (x1.min(x2), x1.max(x2));
+                    let (y1, y2) = (y1.min(y2), y1.max(y2));
+
+                    let mut v = Vec::new();
+                    for x in x1..=x2 {
+                        for y in y1..=y2 {
+                            v.push((x, y));
+                        }
+                    }
+
+                    v
+                })
         })
-        .collect::<Vec<_>>();
-
-    // Turn all the paths into a map of filled tiles
-    let mut map = HashMap::new();
-    for path in instructions {
-        for point in path.windows(2) {
-            let (x1, y1) = point[0];
-            let (x2, y2) = point[1];
-            let (x1, x2) = (x1.min(x2), x1.max(x2));
-            let (y1, y2) = (y1.min(y2), y1.max(y2));
-            for x in x1..=x2 {
-                for y in y1..=y2 {
-                    map.insert((x, y), true);
-                }
-            }
-        }
-    }
-
-    map
+        .flatten()
+        .collect()
 }
 
 #[aoc(day14, part1)]
