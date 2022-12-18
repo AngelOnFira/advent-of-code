@@ -79,7 +79,7 @@ pub fn solve_part2(input: &InputType) -> i32 {
 
     // Make a 3d grid around all of the cubes
     (shape.iter().map(|x| x.0).min().unwrap() - 1..shape.iter().map(|x| x.0).max().unwrap() + 2)
-        .into_par_iter()
+        .into_iter()
         .map(|x| {
             let mut surface_area = 0;
             for y in shape.iter().map(|x| x.1).min().unwrap() - 1
@@ -139,11 +139,6 @@ fn find_path(
     while !queue.is_empty() {
         // Get the next position
         let this_pos = queue.pop().unwrap();
-        if visited.contains(&this_pos.1) {
-            continue;
-        }
-
-        visited.insert(pos);
 
         // Check if we are done
         if this_pos.1 == target {
@@ -175,6 +170,7 @@ fn find_path(
                             + (new_pos.2 - target.2).abs()),
                         new_pos,
                     ));
+                    visited.insert(pos);
                 }
             }
         }
