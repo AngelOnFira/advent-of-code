@@ -88,12 +88,6 @@ pub fn solve_part2(input: &InputType) -> i32 {
                 for z in shape.iter().map(|x| x.2).min().unwrap() - 1
                     ..shape.iter().map(|x| x.2).max().unwrap() + 2
                 {
-                    // Make sure there is a path from here to the outside
-                    if !find_path(&shape, (x, y, z), outside) {
-                        continue;
-                    }
-
-                    // Add a surface area for each neighbor that is there
                     let directions = vec![
                         (0, 1, 0),
                         (0, -1, 0),
@@ -102,6 +96,21 @@ pub fn solve_part2(input: &InputType) -> i32 {
                         (0, 0, 1),
                         (0, 0, -1),
                     ];
+                    // Make sure that we're adjacent to a cube
+                    if !shape.contains(&(x, y, z))
+                        && !directions
+                            .iter()
+                            .any(|(dx, dy, dz)| shape.contains(&(x + dx, y + dy, z + dz)))
+                    {
+                        continue;
+                    }
+
+                    // Make sure there is a path from here to the outside
+                    if !find_path(&shape, (x, y, z), outside) {
+                        continue;
+                    }
+
+                    // Add a surface area for each neighbour beside us
                     for side in 0..6 {
                         let new_pos = (
                             x + directions[side].0,
@@ -125,34 +134,49 @@ fn find_path(
     target: (i32, i32, i32),
 ) -> bool {
     let mut visited = HashSet::new();
-    let mut queue = vec![pos];
+    let mut queue: Vec<(i32, (i32, i32, i32))> = vec![(0, pos)];
     while !queue.is_empty() {
-        let mut new_queue = vec![];
-        for pos in queue {
-            if pos == target {
-                return true;
-            }
-            visited.insert(pos);
-            let directions = vec![
-                (0, 1, 0),
-                (0, -1, 0),
-                (1, 0, 0),
-                (-1, 0, 0),
-                (0, 0, 1),
-                (0, 0, -1),
-            ];
-            for side in 0..6 {
-                let new_pos = (
-                    pos.0 + directions[side].0,
-                    pos.1 + directions[side].1,
-                    pos.2 + directions[side].2,
-                );
-                if !visited.contains(&new_pos) && shape.contains(&new_pos) {
-                    new_queue.push(new_pos);
+        // Get the next position
+        let this_pos = queue.remove(0);
+        if visited.contains(&this_pos.1) {
+            continue;
+        }
+
+        // Check if we are done
+        if this_pos.1 == target {
+            return true;
+        }
+
+        // Add the neighbors to the queue
+        let directions = vec![
+            (0, 1, 0),
+            (0, -1, 0),
+            (1, 0, 0),
+            (-1, 0, 0),
+            (0, 0, 1),
+            (0, 0, -1),
+        ];
+
+        for side in 0..6 {
+            let new_pos = (
+                this_pos.1 .0 + directions[side].0,
+                this_pos.1 .1 + directions[side].1,
+                this_pos.1 .2 + directions[side].2,
+            );
+            if !shape.contains(&new_pos) && !visited.contains(&new_pos) {
+                {
+                    // Distance, position
+                    queue.push((
+                        (new_pos.0 - target.0).abs()
+                            + (new_pos.1 - target.1).abs()
+                            + (new_pos.2 - target.2).abs(),
+                        new_pos,
+                    ));
                 }
             }
         }
-        queue = new_queue;
+
+        visited.insert(pos);
     }
     false
 }
