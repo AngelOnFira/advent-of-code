@@ -79,23 +79,23 @@ pub fn solve_part2(input: &InputType) -> i32 {
 
     // Make a 3d grid around all of the cubes
     (shape.iter().map(|x| x.0).min().unwrap() - 1..shape.iter().map(|x| x.0).max().unwrap() + 2)
-        .into_iter()
+        .into_par_iter()
         .map(|x| {
             let mut surface_area = 0;
+            let directions = vec![
+                (0, 1, 0),
+                (0, -1, 0),
+                (1, 0, 0),
+                (-1, 0, 0),
+                (0, 0, 1),
+                (0, 0, -1),
+            ];
             for y in shape.iter().map(|x| x.1).min().unwrap() - 1
                 ..shape.iter().map(|x| x.1).max().unwrap() + 2
             {
                 for z in shape.iter().map(|x| x.2).min().unwrap() - 1
                     ..shape.iter().map(|x| x.2).max().unwrap() + 2
                 {
-                    let directions = vec![
-                        (0, 1, 0),
-                        (0, -1, 0),
-                        (1, 0, 0),
-                        (-1, 0, 0),
-                        (0, 0, 1),
-                        (0, 0, -1),
-                    ];
                     // Make sure that we're adjacent to a cube
                     if shape.contains(&(x, y, z))
                         || !directions
@@ -136,6 +136,8 @@ fn find_path(
     let mut visited = HashSet::new();
     let mut queue: BinaryHeap<(i32, (i32, i32, i32))> = BinaryHeap::new();
     queue.push((0, pos));
+    visited.insert(pos);
+
     while !queue.is_empty() {
         // Get the next position
         let this_pos = queue.pop().unwrap();
@@ -170,10 +172,11 @@ fn find_path(
                             + (new_pos.2 - target.2).abs()),
                         new_pos,
                     ));
-                    visited.insert(pos);
+                    visited.insert(new_pos);
                 }
             }
         }
     }
+
     false
 }
