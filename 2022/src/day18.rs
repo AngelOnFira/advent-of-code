@@ -1,5 +1,5 @@
 use std::{
-    collections::{HashMap, HashSet},
+    collections::{BinaryHeap, HashMap, HashSet},
     iter::FromIterator,
 };
 
@@ -97,8 +97,8 @@ pub fn solve_part2(input: &InputType) -> i32 {
                         (0, 0, -1),
                     ];
                     // Make sure that we're adjacent to a cube
-                    if !shape.contains(&(x, y, z))
-                        && !directions
+                    if shape.contains(&(x, y, z))
+                        || !directions
                             .iter()
                             .any(|(dx, dy, dz)| shape.contains(&(x + dx, y + dy, z + dz)))
                     {
@@ -130,17 +130,20 @@ pub fn solve_part2(input: &InputType) -> i32 {
 
 fn find_path(
     shape: &HashSet<(i32, i32, i32)>,
-    mut pos: (i32, i32, i32),
+    pos: (i32, i32, i32),
     target: (i32, i32, i32),
 ) -> bool {
     let mut visited = HashSet::new();
-    let mut queue: Vec<(i32, (i32, i32, i32))> = vec![(0, pos)];
+    let mut queue: BinaryHeap<(i32, (i32, i32, i32))> = BinaryHeap::new();
+    queue.push((0, pos));
     while !queue.is_empty() {
         // Get the next position
-        let this_pos = queue.remove(0);
+        let this_pos = queue.pop().unwrap();
         if visited.contains(&this_pos.1) {
             continue;
         }
+
+        visited.insert(pos);
 
         // Check if we are done
         if this_pos.1 == target {
@@ -167,16 +170,14 @@ fn find_path(
                 {
                     // Distance, position
                     queue.push((
-                        (new_pos.0 - target.0).abs()
+                        1000 - ((new_pos.0 - target.0).abs()
                             + (new_pos.1 - target.1).abs()
-                            + (new_pos.2 - target.2).abs(),
+                            + (new_pos.2 - target.2).abs()),
                         new_pos,
                     ));
                 }
             }
         }
-
-        visited.insert(pos);
     }
     false
 }
