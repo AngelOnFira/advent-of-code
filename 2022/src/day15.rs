@@ -28,7 +28,6 @@ fn parse_input_day15(input: &str) -> InputType {
 
 #[aoc(day15, part1)]
 pub fn solve_part1(input: &InputType) -> i32 {
-    return 0;
     // Get the range of each sensor
     let ranges: Vec<((i32, i32), i32)> = input
         .iter()
@@ -48,7 +47,7 @@ pub fn solve_part1(input: &InputType) -> i32 {
     let range = 100_000_000;
 
     (-1 * range..=range)
-        .into_par_iter()
+        .into_iter()
         .filter(|x| {
             // If we're within range of any sensor, but we're not at the
             // location of a beacon, we're valid
