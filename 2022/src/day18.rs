@@ -4,6 +4,7 @@ use std::{
 };
 
 use itertools::Itertools;
+use rayon::prelude::{IntoParallelIterator, ParallelIterator};
 use regex::Regex;
 
 type InputType = Vec<(i32, i32, i32)>;
@@ -76,47 +77,46 @@ pub fn solve_part2(input: &InputType) -> i32 {
         shape.iter().map(|x| x.2).min().unwrap() - 1,
     );
 
-    let mut surface_area = 0;
-
     // Make a 3d grid around all of the cubes
-    for x in
-        shape.iter().map(|x| x.0).min().unwrap() - 1..shape.iter().map(|x| x.0).max().unwrap() + 2
-    {
-        for y in shape.iter().map(|x| x.1).min().unwrap() - 1
-            ..shape.iter().map(|x| x.1).max().unwrap() + 2
-        {
-            for z in shape.iter().map(|x| x.2).min().unwrap() - 1
-                ..shape.iter().map(|x| x.2).max().unwrap() + 2
+    (shape.iter().map(|x| x.0).min().unwrap() - 1..shape.iter().map(|x| x.0).max().unwrap() + 2)
+        .into_par_iter()
+        .map(|x| {
+            let mut surface_area = 0;
+            for y in shape.iter().map(|x| x.1).min().unwrap() - 1
+                ..shape.iter().map(|x| x.1).max().unwrap() + 2
             {
-                // Make sure there is a path from here to the outside
-                if !find_path(&shape, (x, y, z), outside) {
-                    continue;
-                }
+                for z in shape.iter().map(|x| x.2).min().unwrap() - 1
+                    ..shape.iter().map(|x| x.2).max().unwrap() + 2
+                {
+                    // Make sure there is a path from here to the outside
+                    if !find_path(&shape, (x, y, z), outside) {
+                        continue;
+                    }
 
-                // Add a surface area for each neighbor that is there
-                let directions = vec![
-                    (0, 1, 0),
-                    (0, -1, 0),
-                    (1, 0, 0),
-                    (-1, 0, 0),
-                    (0, 0, 1),
-                    (0, 0, -1),
-                ];
-                for side in 0..6 {
-                    let new_pos = (
-                        x + directions[side].0,
-                        y + directions[side].1,
-                        z + directions[side].2,
-                    );
-                    if shape.contains(&new_pos) {
-                        surface_area += 1;
+                    // Add a surface area for each neighbor that is there
+                    let directions = vec![
+                        (0, 1, 0),
+                        (0, -1, 0),
+                        (1, 0, 0),
+                        (-1, 0, 0),
+                        (0, 0, 1),
+                        (0, 0, -1),
+                    ];
+                    for side in 0..6 {
+                        let new_pos = (
+                            x + directions[side].0,
+                            y + directions[side].1,
+                            z + directions[side].2,
+                        );
+                        if shape.contains(&new_pos) {
+                            surface_area += 1;
+                        }
                     }
                 }
             }
-        }
-    }
-
-    surface_area
+            surface_area
+        })
+        .sum()
 }
 
 fn find_path(
