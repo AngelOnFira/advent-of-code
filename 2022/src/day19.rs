@@ -245,7 +245,7 @@ fn recursively_find_max_geodes(blueprint: &Blueprint, mut state: State) -> i32 {
 pub fn solve_part1(input: &InputType) -> i32 {
     let current_robots: HashMap<RobotKinds, i32> = HashMap::from_iter(vec![
         (RobotKinds::Ore, 1),
-        (RobotKinds::Clay, 0),
+        (RobotKinds::Clay, 2),
         (RobotKinds::Obsidian, 0),
         (RobotKinds::Geode, 0),
     ]);
@@ -262,13 +262,17 @@ pub fn solve_part1(input: &InputType) -> i32 {
         .par_iter()
         .enumerate()
         .map(|(i, blueprint)| {
+            // Start by assuming we go for clay right away. Subtract the number
+            // of turns required to get a clay robot from the total time
+            let time_remaining = 24 - blueprint.clay_cost.ore * 2;
+            
             // Find how many geodes can be made in 24 minutes
             let geodes = recursively_find_max_geodes(
                 blueprint,
                 State {
                     current_robots: current_robots.clone(),
                     current_resources: current_resources.clone(),
-                    time_remaining: 24,
+                    time_remaining: time_remaining,
                 },
             );
 
