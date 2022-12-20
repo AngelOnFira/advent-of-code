@@ -20,7 +20,7 @@ pub fn solve_part1(input: &InputType) -> i64 {
     let input: Vec<i64> = input
         .iter()
         .map(|x| {
-            return *x;
+            // return *x;
             return *x * 811589153;
             let a = *x * 811589153;
             let mut flag = false;
@@ -36,13 +36,13 @@ pub fn solve_part1(input: &InputType) -> i64 {
         })
         .collect();
 
-    // for _ in 0..10 {
+    for _ in 0..10 {
         for i in 0..input.len() {
             // debug the list
-            for j in 0..change_list.len() {
-                print!("{} ", input[change_list[j] as usize]);
-            }
-            println!();
+            // for j in 0..change_list.len() {
+            //     print!("{} ", input[change_list[j] as usize]);
+            // }
+            // println!();
             // Find i in the change_list, and shift it back or forward, moving other
             // elements, by the value of input[i]. Make sure to handle wrapping
             // around the end of the list.
@@ -71,19 +71,6 @@ pub fn solve_part1(input: &InputType) -> i64 {
             change_list.remove(index);
             change_list.insert(new_index as usize, i as i64);
 
-            // If we inserted right before the end, move the last item to the
-            // front
-            if new_index == change_list.len() as i64 - 2 {
-                let last = change_list.pop_back().unwrap();
-                change_list.push_front(last);
-            }
-
-            // If we inserted right after the beginning, move the first item to
-            // the end
-            if new_index == 1 {
-                let first = change_list.pop_front().unwrap();
-                change_list.push_back(first);
-            }
         }
         for j in 0..change_list.len() {
             print!("{} ", input[change_list[j] as usize]);
@@ -92,7 +79,7 @@ pub fn solve_part1(input: &InputType) -> i64 {
 
         println!("Done an iteration");
         // break;
-    // }
+    }
 
     // Return the sum of the 1000th, 2000th, and 3000th numbers of the list,
     // wrapping around
