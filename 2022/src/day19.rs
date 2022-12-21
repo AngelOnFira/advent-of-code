@@ -1,5 +1,5 @@
 use std::{
-    collections::{HashMap, HashSet},
+    collections::{BinaryHeap, HashMap, HashSet},
     hash::Hasher,
     iter::FromIterator,
 };
@@ -42,25 +42,25 @@ pub enum Resources {
     Geode,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash, PartialOrd)]
 pub struct State {
-    pub current_robots: HashMap<RobotKinds, i32>,
-    pub current_resources: HashMap<Resources, i32>,
+    pub current_robots: [i32; 4],
+    pub current_resources: [i32; 4],
     pub time_remaining: i32,
 }
 
-impl Hash for State {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        // Hash the hashmap by each key
-        self.current_robots.iter().for_each(|(k, v)| {
-            k.hash(state);
-            v.hash(state);
-        });
-        self.current_resources.iter().for_each(|(k, v)| {
-            k.hash(state);
-            v.hash(state);
-        });
-        self.time_remaining.hash(state);
+impl State {
+    fn mining(&mut self) {
+        self.current_resources[0] += self.current_robots[0];
+        self.current_resources[1] += self.current_robots[1];
+        self.current_resources[2] += self.current_robots[2];
+        self.current_resources[3] += self.current_robots[3];
+    }
+}
+
+impl Ord for State {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.current_resources[3].cmp(&other.current_resources[3])
     }
 }
 
@@ -102,64 +102,66 @@ fn parse_input_day19(input: &str) -> InputType {
 }
 
 fn recursively_find_max_geodes(blueprint: &Blueprint, state: State) -> i32 {
-    let mut state_queue = Vec::new();
+    let mut state_queue = BinaryHeap::new();
     // let mut visited_states = HashSet::new();
     let mut curr_max = 0;
 
     state_queue.push(state.clone());
 
     while state_queue.len() > 0 {
-        // dbg!(state_queue.len());
-        let state = state_queue.pop().unwrap();
+        // If the state len % 100_000 == 0, print the length
+        // if state_queue.len() % 100_000 == 0 {
+        //     println!("State queue length: {}", state_queue.len());
+        // }
 
-        // If any resources are >40, discard this state
-        if state.current_resources[&Resources::Ore] > 40
-            || state.current_resources[&Resources::Clay] > 40
-            || state.current_resources[&Resources::Obsidian] > 40
-            || state.current_resources[&Resources::Geode] > 40
-        {
-            continue;
+        // If the state_queue is larger than 1_000_000, cull the last 100_000
+        if state_queue.len() > 1_000_000 {
+            let mut new_state_queue = BinaryHeap::new();
+            for (i, state) in state_queue.into_iter().enumerate() {
+                if i < 900_000 {
+                    new_state_queue.push(state);
+                }
+            }
+            // println!("Culled 100_000 states");
+            state_queue = new_state_queue;
         }
+
+        let mut state = state_queue.pop().unwrap();
+
+        // // If any resources are >40, discard this state
+        // if state.current_resources[0] > 40
+        //     || state.current_resources[&Resources::Clay] > 40
+        //     || state.current_resources[&Resources::Obsidian] > 40
+        //     || state.current_resources[&Resources::Geode] > 40
+        // {
+        //     continue;
+        // }
 
         // Base case
         if state.time_remaining == 0 {
-            if state.current_resources[&Resources::Geode] > curr_max {
-                curr_max = state.current_resources[&Resources::Geode];
+            if state.current_resources[3] > curr_max {
+                println!("New max: {}", state.current_resources[3]);
+                curr_max = state.current_resources[3];
             }
         }
 
-        let mut current_resources_post_mining = state.current_resources.clone();
+        let current_resources_post_mining = state.current_resources.clone();
 
         // Process the mining
-        current_resources_post_mining
-            .entry(Resources::Ore)
-            .and_modify(|x| *x += state.current_robots[&RobotKinds::Ore]);
-        current_resources_post_mining
-            .entry(Resources::Clay)
-            .and_modify(|x| *x += state.current_robots[&RobotKinds::Clay]);
-        current_resources_post_mining
-            .entry(Resources::Obsidian)
-            .and_modify(|x| *x += state.current_robots[&RobotKinds::Obsidian]);
-        current_resources_post_mining
-            .entry(Resources::Geode)
-            .and_modify(|x| *x += state.current_robots[&RobotKinds::Geode]);
+        state.mining();
 
         // Reduce time remaining
         let time_remaining = state.time_remaining - 1;
 
         // The case where we get an Ore robot, and current ore robots are less than 3
-        if state.current_resources[&Resources::Ore] >= blueprint.ore_cost.ore
-            // Heuristic: We can only get 3 ore robots
-            && state.current_robots[&RobotKinds::Ore] < 4
+        if current_resources_post_mining[0] >= blueprint.ore_cost.ore
+        // Heuristic: We can only get 3 ore robots
+        // && state.current_robots[0] < 4
         {
             let mut new_current_robots = state.current_robots.clone();
-            let mut new_current_resources = current_resources_post_mining.clone();
-            new_current_robots
-                .entry(RobotKinds::Ore)
-                .and_modify(|x| *x += 1);
-            new_current_resources
-                .entry(Resources::Ore)
-                .and_modify(|x| *x -= blueprint.ore_cost.ore);
+            let mut new_current_resources = state.current_resources.clone();
+            new_current_robots[0] += 1;
+            new_current_resources[0] -= blueprint.ore_cost.ore;
 
             let new_state = State {
                 current_robots: new_current_robots,
@@ -172,17 +174,13 @@ fn recursively_find_max_geodes(blueprint: &Blueprint, state: State) -> i32 {
 
         // The case where we get a Clay robot
         // Keep clay below 5
-        if state.current_resources[&Resources::Ore] >= blueprint.clay_cost.ore
-            && state.current_robots[&RobotKinds::Clay] < 8
+        if current_resources_post_mining[0] >= blueprint.clay_cost.ore
+        // && state.current_robots[1] < 5
         {
             let mut new_current_robots = state.current_robots.clone();
-            let mut new_current_resources = current_resources_post_mining.clone();
-            new_current_robots
-                .entry(RobotKinds::Clay)
-                .and_modify(|x| *x += 1);
-            new_current_resources
-                .entry(Resources::Ore)
-                .and_modify(|x| *x -= blueprint.clay_cost.ore);
+            let mut new_current_resources = state.current_resources.clone();
+            new_current_robots[1] += 1;
+            new_current_resources[0] -= blueprint.clay_cost.ore;
 
             let new_state = State {
                 current_robots: new_current_robots,
@@ -194,20 +192,14 @@ fn recursively_find_max_geodes(blueprint: &Blueprint, state: State) -> i32 {
         }
 
         // The case where we get an Obsidian robot
-        if state.current_resources[&Resources::Ore] >= blueprint.obsidian_cost.ore
-            && state.current_resources[&Resources::Clay] >= blueprint.obsidian_cost.clay
+        if current_resources_post_mining[0] >= blueprint.obsidian_cost.ore
+            && current_resources_post_mining[1] >= blueprint.obsidian_cost.clay
         {
             let mut new_current_robots = state.current_robots.clone();
-            let mut new_current_resources = current_resources_post_mining.clone();
-            new_current_robots
-                .entry(RobotKinds::Obsidian)
-                .and_modify(|x| *x += 1);
-            new_current_resources
-                .entry(Resources::Ore)
-                .and_modify(|x| *x -= blueprint.obsidian_cost.ore);
-            new_current_resources
-                .entry(Resources::Clay)
-                .and_modify(|x| *x -= blueprint.obsidian_cost.clay);
+            let mut new_current_resources = state.current_resources.clone();
+            new_current_robots[2] += 1;
+            new_current_resources[0] -= blueprint.obsidian_cost.ore;
+            new_current_resources[1] -= blueprint.obsidian_cost.clay;
 
             let new_state = State {
                 current_robots: new_current_robots,
@@ -219,20 +211,14 @@ fn recursively_find_max_geodes(blueprint: &Blueprint, state: State) -> i32 {
         }
 
         // The case where we get a Geode robot
-        if state.current_resources[&Resources::Ore] >= blueprint.geode_cost.ore
-            && state.current_resources[&Resources::Obsidian] >= blueprint.geode_cost.obsidian
+        if current_resources_post_mining[0] >= blueprint.geode_cost.ore
+            && current_resources_post_mining[2] >= blueprint.geode_cost.obsidian
         {
             let mut new_current_robots = state.current_robots.clone();
-            let mut new_current_resources = current_resources_post_mining.clone();
-            new_current_robots
-                .entry(RobotKinds::Geode)
-                .and_modify(|x| *x += 1);
-            new_current_resources
-                .entry(Resources::Ore)
-                .and_modify(|x| *x -= blueprint.geode_cost.ore);
-            new_current_resources
-                .entry(Resources::Obsidian)
-                .and_modify(|x| *x -= blueprint.geode_cost.obsidian);
+            let mut new_current_resources = state.current_resources.clone();
+            new_current_robots[3] += 1;
+            new_current_resources[0] -= blueprint.geode_cost.ore;
+            new_current_resources[2] -= blueprint.geode_cost.obsidian;
 
             let new_state = State {
                 current_robots: new_current_robots,
@@ -247,7 +233,7 @@ fn recursively_find_max_geodes(blueprint: &Blueprint, state: State) -> i32 {
         // if geodes_score.len() != 4 {
         let new_state = State {
             current_robots: state.current_robots.clone(),
-            current_resources: current_resources_post_mining.clone(),
+            current_resources: state.current_resources.clone(),
             time_remaining,
         };
 
@@ -282,13 +268,14 @@ pub fn solve_part1(input: &InputType) -> i32 {
             // Start by assuming we go for clay right away. Subtract the number
             // of turns required to get a clay robot from the total time
             let time_remaining = 24 - blueprint.clay_cost.ore * 2;
+            let time_remaining = 24;
 
             // Find how many geodes can be made in 24 minutes
             let geodes = recursively_find_max_geodes(
                 blueprint,
                 State {
-                    current_robots: current_robots.clone(),
-                    current_resources: current_resources.clone(),
+                    current_robots: [1, 0, 0, 0],
+                    current_resources: [0, 0, 0, 0],
                     time_remaining: time_remaining,
                 },
             );
