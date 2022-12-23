@@ -6,7 +6,15 @@ use std::{
 use itertools::Itertools;
 use regex::Regex;
 
-type InputType = HashMap<(i32, i32), bool>;
+type InputType = Vec<Elf>;
+
+#[derive(Debug, Clone, Hash, Eq, PartialEq)]
+pub struct Elf {
+    pub x: i32,
+    pub y: i32,
+    pub direction: i32,
+    pub proposed_move: Option<(i32, i32)>,
+}
 
 #[aoc_generator(day23)]
 fn parse_input_day23(input: &str) -> InputType {
@@ -23,7 +31,18 @@ fn parse_input_day23(input: &str) -> InputType {
         .map(|(y, line)| {
             line.chars()
                 .enumerate()
-                .map(|(x, c)| ((x as i32, y as i32), c == '#'))
+                .filter_map(|(x, c)| {
+                    if c == '#' {
+                        Some(Elf {
+                            x: x as i32,
+                            y: y as i32,
+                            direction: 0,
+                            proposed_move: None,
+                        })
+                    } else {
+                        None
+                    }
+                })
                 .collect::<Vec<_>>()
         })
         .flatten()
@@ -31,27 +50,34 @@ fn parse_input_day23(input: &str) -> InputType {
 }
 
 fn get_map_bounds(map: &InputType) -> ((i32, i32), (i32, i32)) {
-    let mut min_x = 0;
-    let mut max_x = 0;
-    let mut min_y = 0;
-    let mut max_y = 0;
+    let mut min_x = None;
+    let mut max_x = None;
+    let mut min_y = None;
+    let mut max_y = None;
 
-    map.iter().filter(|(_, v)| **v).for_each(|((x, y), _)| {
-        if *x < min_x {
-            min_x = *x;
+    map.iter().for_each(|elf| {
+        if min_x.is_none() || elf.x < min_x.unwrap() {
+            min_x = Some(elf.x);
         }
-        if *x > max_x {
-            max_x = *x;
+        if max_x.is_none() || elf.x > max_x.unwrap() {
+            max_x = Some(elf.x);
         }
-        if *y < min_y {
-            min_y = *y;
+        if min_y.is_none() || elf.y < min_y.unwrap() {
+            min_y = Some(elf.y);
         }
-        if *y > max_y {
-            max_y = *y;
+        if max_y.is_none() || elf.y > max_y.unwrap() {
+            max_y = Some(elf.y);
         }
     });
 
-    ((min_x, min_y), (max_x, max_y))
+    (
+        (min_x.unwrap(), min_y.unwrap()),
+        (max_x.unwrap(), max_y.unwrap()),
+    )
+}
+
+fn is_elf_at(map: &InputType, x: i32, y: i32) -> bool {
+    map.iter().any(|elf| elf.x == x && elf.y == y)
 }
 
 #[aoc(day23, part1)]
@@ -59,20 +85,7 @@ pub fn solve_part1(input: &InputType) -> i128 {
     // Do a game of life simulation
     let mut map = input.clone();
 
-    let map_bounds = get_map_bounds(&map);
-
-    // Print out the map
-    for y in map_bounds.0 .1..=map_bounds.1 .1 {
-        for x in map_bounds.0 .0..=map_bounds.1 .0 {
-            if *map.get(&(x, y)).unwrap_or(&false) {
-                print!("#");
-            } else {
-                print!(".");
-            }
-        }
-        println!();
-    }
-    println!();
+    let mut global_dir = 0;
 
     for _ in 0..10 {
         // There are 2 step
@@ -100,19 +113,11 @@ pub fn solve_part1(input: &InputType) -> i128 {
         // third round, the Elves would first consider west, then east, then
         // north, then south.
 
-        let mut new_map = HashMap::new();
+        let mut new_map = Vec::new();
 
-        let mut proposed_moves = HashMap::new();
-
-        for ((x, y), elf) in map.iter() {
-            if !elf {
-                continue;
-            }
-
-            let x = *x;
-            let y = *y;
-
-            let mut proposed_move = None;
+        for elf in map.iter() {
+            let x = elf.x;
+            let y = elf.y;
 
             // Check if there is an elf in the 8 adjacent cells
             let mut elf_in_adjacent = false;
@@ -127,116 +132,209 @@ pub fn solve_part1(input: &InputType) -> i128 {
                 (1, 0),
                 (1, 1),
             ] {
-                if *map.get(&(x + dx, y + dy)).unwrap_or(&false) {
+                if is_elf_at(&map, x + dx, y + dy) {
                     elf_in_adjacent = true;
                     break;
                 }
             }
 
             if !elf_in_adjacent {
-                new_map.insert((x, y), true);
-                proposed_moves.insert((x, y), (x, y));
+                new_map.push(Elf {
+                    x,
+                    y,
+                    direction: elf.direction,
+                    proposed_move: None,
+                });
                 continue;
             }
 
-            // Check if there is an elf in the N, NE, or NW adjacent positions
-            if !map.get(&(x - 1, y - 1)).unwrap_or(&false)
-                && !map.get(&(x, y - 1)).unwrap_or(&false)
-                && !map.get(&(x + 1, y - 1)).unwrap_or(&false)
-            {
-                proposed_move = Some((x, y - 1));
-            }
-            // Check if there is an elf in the S, SE, or SW adjacent positions
-            else if !map.get(&(x - 1, y + 1)).unwrap_or(&false)
-                && !map.get(&(x, y + 1)).unwrap_or(&false)
-                && !map.get(&(x + 1, y + 1)).unwrap_or(&false)
-            {
-                proposed_move = Some((x, y + 1));
-            }
-            // Check if there is an elf in the W, NW, or SW adjacent positions
-            else if !map.get(&(x - 1, y - 1)).unwrap_or(&false)
-                && !map.get(&(x - 1, y)).unwrap_or(&false)
-                && !map.get(&(x - 1, y + 1)).unwrap_or(&false)
-            {
-                proposed_move = Some((x - 1, y));
-            }
-            // Check if there is an elf in the E, NE, or SE adjacent positions
-            else if !map.get(&(x + 1, y - 1)).unwrap_or(&false)
-                && !map.get(&(x + 1, y)).unwrap_or(&false)
-                && !map.get(&(x + 1, y + 1)).unwrap_or(&false)
-            {
-                proposed_move = Some((x + 1, y));
-            }
+            let direction_list = [
+                ([(-1, -1), (0, -1), (1, -1)], (x, y - 1)),
+                ([(-1, 1), (0, 1), (1, 1)], (x, y + 1)),
+                ([(-1, -1), (-1, 0), (-1, 1)], (x - 1, y)),
+                ([(1, -1), (1, 1), (1, 0)], (x + 1, y)),
+            ];
 
-            proposed_moves.insert((x, y), proposed_move.unwrap());
+            let mut flag = false;
+            for dir_idx in 0..direction_list.len() {
+                let (direction, proposed_move) =
+                    direction_list[(dir_idx + global_dir) % direction_list.len()];
 
-            // println!("Elf at ({}, {}) proposed move to {:?}", x, y,
-            // proposed_move);
-        }
-
-        // println!("Proposed moves: {:?}", proposed_moves);
-
-        for ((x, y), proposed_move) in proposed_moves.iter() {
-            let x = *x;
-            let y = *y;
-
-            let proposed_move = *proposed_move;
-
-            // Check if any other elves proposed moving to this position
-            let mut other_elf_proposed = false;
-
-            for ((x2, y2), proposed_move2) in proposed_moves.iter() {
-                let x2 = *x2;
-                let y2 = *y2;
-
-                let proposed_move2 = *proposed_move2;
-
-                if x == x2 && y == y2 {
-                    continue;
-                }
-
-                if proposed_move == proposed_move2 {
-                    other_elf_proposed = true;
+                if !direction
+                    .iter()
+                    .any(|(dx, dy)| is_elf_at(&map, x + dx, y + dy))
+                {
+                    new_map.push(Elf {
+                        x,
+                        y,
+                        direction: elf.direction,
+                        proposed_move: Some(proposed_move),
+                    });
+                    flag = true;
                     break;
                 }
             }
 
-            if other_elf_proposed {
-                new_map.insert((x, y), true);
-
-                continue;
+            if !flag {
+                new_map.push(Elf {
+                    x,
+                    y,
+                    direction: elf.direction,
+                    proposed_move: None,
+                });
             }
-
-            // Move the elf
-            new_map.insert(proposed_move, true);
         }
 
-        let map_bounds = get_map_bounds(&map);
+        for i in 0..new_map.len() {
+            for j in 0..new_map.len() {
+                if i == j {
+                    continue;
+                }
 
-        // Print out the map
-        for y in map_bounds.0 .1..=map_bounds.1 .1 {
-            for x in map_bounds.0 .0..=map_bounds.1 .0 {
-                if *map.get(&(x, y)).unwrap_or(&false) {
-                    print!("#");
-                } else {
-                    print!(".");
+                if new_map[i].proposed_move == new_map[j].proposed_move {
+                    new_map[i].proposed_move = None;
+                    new_map[j].proposed_move = None;
                 }
             }
-            println!();
         }
 
-        println!("");
+        for elf in new_map.iter_mut() {
+            if let Some((x, y)) = elf.proposed_move {
+                elf.x = x;
+                elf.y = y;
+            }
+            elf.proposed_move = None;
+        }
 
         map = new_map;
+        global_dir += 1;
     }
 
     // Find the area of the rectangle that contains all elves
     let map_bounds = get_map_bounds(&map);
 
-    ((map_bounds.1 .0 - map_bounds.0 .0 + 1) * (map_bounds.1 .1 - map_bounds.0 .1 + 1)) as i128
+    ((map_bounds.1 .0 - map_bounds.0 .0 + 1) * (map_bounds.1 .1 - map_bounds.0 .1 + 1)
+        - map.len() as i32) as i128
 }
 
 #[aoc(day23, part2)]
 pub fn solve_part2(input: &InputType) -> i128 {
-    0
+    // Do a game of life simulation
+    let mut map = input.clone();
+
+    let mut global_dir = 0;
+
+    let mut total_rounds = 1;
+
+    let mut proposed_move_map = HashMap::new();
+
+    loop {
+        let mut new_map = Vec::new();
+
+        for elf in map.iter() {
+            let x = elf.x;
+            let y = elf.y;
+
+            // Check if there is an elf in the 8 adjacent cells
+            let mut elf_in_adjacent = false;
+
+            for (dx, dy) in vec![
+                (-1, -1),
+                (-1, 0),
+                (-1, 1),
+                (0, -1),
+                (0, 1),
+                (1, -1),
+                (1, 0),
+                (1, 1),
+            ] {
+                if is_elf_at(&map, x + dx, y + dy) {
+                    elf_in_adjacent = true;
+                    break;
+                }
+            }
+
+            if !elf_in_adjacent {
+                new_map.push(Elf {
+                    x,
+                    y,
+                    direction: elf.direction,
+                    proposed_move: None,
+                });
+                continue;
+            }
+
+            let direction_list = [
+                ([(-1, -1), (0, -1), (1, -1)], (x, y - 1)),
+                ([(-1, 1), (0, 1), (1, 1)], (x, y + 1)),
+                ([(-1, -1), (-1, 0), (-1, 1)], (x - 1, y)),
+                ([(1, -1), (1, 1), (1, 0)], (x + 1, y)),
+            ];
+
+            let mut flag = false;
+            for dir_idx in 0..direction_list.len() {
+                let (direction, proposed_move) =
+                    direction_list[(dir_idx + global_dir) % direction_list.len()];
+
+                if !direction
+                    .iter()
+                    .any(|(dx, dy)| is_elf_at(&map, x + dx, y + dy))
+                {
+                    new_map.push(Elf {
+                        x,
+                        y,
+                        direction: elf.direction,
+                        proposed_move: Some(proposed_move),
+                    });
+                    proposed_move_map.entry(proposed_move).or_insert(0);
+                    *proposed_move_map.get_mut(&proposed_move).unwrap() += 1;
+                    flag = true;
+                    break;
+                }
+            }
+
+            if !flag {
+                new_map.push(Elf {
+                    x,
+                    y,
+                    direction: elf.direction,
+                    proposed_move: None,
+                });
+            }
+        }
+
+        for i in 0..new_map.len() {
+            if new_map[i].proposed_move.is_none() {
+                continue;
+            }
+            for j in 0..new_map.len() {
+                if i == j {
+                    continue;
+                }
+
+                if new_map[i].proposed_move == new_map[j].proposed_move {
+                    new_map[i].proposed_move = None;
+                    new_map[j].proposed_move = None;
+                    break
+                }
+            }
+        }
+
+        // Check if no elf has moved
+        if new_map.iter().all(|elf| elf.proposed_move.is_none()) {
+            return total_rounds;
+        }
+
+        for elf in new_map.iter_mut() {
+            if let Some((x, y)) = elf.proposed_move {
+                elf.x = x;
+                elf.y = y;
+            }
+            elf.proposed_move = None;
+        }
+
+        map = new_map;
+        global_dir += 1;
+        total_rounds += 1;
+    }
 }
