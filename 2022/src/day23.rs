@@ -4,6 +4,7 @@ use std::{
 };
 
 use itertools::Itertools;
+use rayon::prelude::{IntoParallelRefIterator, IntoParallelRefMutIterator, ParallelIterator};
 use regex::Regex;
 
 type InputType = Vec<Elf>;
@@ -225,113 +226,97 @@ pub fn solve_part2(input: &InputType) -> i128 {
     let mut global_dir = 0;
 
     let mut total_rounds = 1;
-
-    let mut proposed_move_map = HashMap::new();
-
+    
     loop {
-        let mut new_map = Vec::new();
+        let mut new_map = map
+            .par_iter()
+            .map(|elf| {
+                let x = elf.x;
+                let y = elf.y;
 
-        for elf in map.iter() {
-            let x = elf.x;
-            let y = elf.y;
+                // Check if there is an elf in the 8 adjacent cells
+                let mut elf_in_adjacent = false;
 
-            // Check if there is an elf in the 8 adjacent cells
-            let mut elf_in_adjacent = false;
-
-            for (dx, dy) in vec![
-                (-1, -1),
-                (-1, 0),
-                (-1, 1),
-                (0, -1),
-                (0, 1),
-                (1, -1),
-                (1, 0),
-                (1, 1),
-            ] {
-                if is_elf_at(&map, x + dx, y + dy) {
-                    elf_in_adjacent = true;
-                    break;
+                for (dx, dy) in vec![
+                    (-1, -1),
+                    (-1, 0),
+                    (-1, 1),
+                    (0, -1),
+                    (0, 1),
+                    (1, -1),
+                    (1, 0),
+                    (1, 1),
+                ] {
+                    if is_elf_at(&map, x + dx, y + dy) {
+                        elf_in_adjacent = true;
+                        break;
+                    }
                 }
-            }
 
-            if !elf_in_adjacent {
-                new_map.push(Elf {
-                    x,
-                    y,
-                    direction: elf.direction,
-                    proposed_move: None,
-                });
-                continue;
-            }
-
-            let direction_list = [
-                ([(-1, -1), (0, -1), (1, -1)], (x, y - 1)),
-                ([(-1, 1), (0, 1), (1, 1)], (x, y + 1)),
-                ([(-1, -1), (-1, 0), (-1, 1)], (x - 1, y)),
-                ([(1, -1), (1, 1), (1, 0)], (x + 1, y)),
-            ];
-
-            let mut flag = false;
-            for dir_idx in 0..direction_list.len() {
-                let (direction, proposed_move) =
-                    direction_list[(dir_idx + global_dir) % direction_list.len()];
-
-                if !direction
-                    .iter()
-                    .any(|(dx, dy)| is_elf_at(&map, x + dx, y + dy))
-                {
-                    new_map.push(Elf {
+                if !elf_in_adjacent {
+                    return Elf {
                         x,
                         y,
                         direction: elf.direction,
-                        proposed_move: Some(proposed_move),
-                    });
-                    proposed_move_map.entry(proposed_move).or_insert(0);
-                    *proposed_move_map.get_mut(&proposed_move).unwrap() += 1;
-                    flag = true;
-                    break;
+                        proposed_move: None,
+                    };
                 }
-            }
 
-            if !flag {
-                new_map.push(Elf {
+                let direction_list = [
+                    ([(-1, -1), (0, -1), (1, -1)], (x, y - 1)),
+                    ([(-1, 1), (0, 1), (1, 1)], (x, y + 1)),
+                    ([(-1, -1), (-1, 0), (-1, 1)], (x - 1, y)),
+                    ([(1, -1), (1, 1), (1, 0)], (x + 1, y)),
+                ];
+
+                for dir_idx in 0..direction_list.len() {
+                    let (direction, proposed_move) =
+                        direction_list[(dir_idx + global_dir) % direction_list.len()];
+
+                    if !direction
+                        .iter()
+                        .any(|(dx, dy)| is_elf_at(&map, x + dx, y + dy))
+                    {
+                        return Elf {
+                            x,
+                            y,
+                            direction: elf.direction,
+                            proposed_move: Some(proposed_move),
+                        };
+                    }
+                }
+
+                return Elf {
                     x,
                     y,
                     direction: elf.direction,
                     proposed_move: None,
-                });
-            }
-        }
+                };
+            })
+            .collect::<Vec<_>>();
 
-        for i in 0..new_map.len() {
-            if new_map[i].proposed_move.is_none() {
-                continue;
+        let proposed_move_map = new_map.iter().fold(HashMap::new(), |mut acc, elf| {
+            if let Some(proposed_move) = elf.proposed_move {
+                acc.entry(proposed_move).or_insert(0);
+                *acc.get_mut(&proposed_move).unwrap() += 1;
             }
-            for j in 0..new_map.len() {
-                if i == j {
-                    continue;
-                }
-
-                if new_map[i].proposed_move == new_map[j].proposed_move {
-                    new_map[i].proposed_move = None;
-                    new_map[j].proposed_move = None;
-                    break
-                }
-            }
-        }
+            acc
+        });
 
         // Check if no elf has moved
         if new_map.iter().all(|elf| elf.proposed_move.is_none()) {
             return total_rounds;
         }
 
-        for elf in new_map.iter_mut() {
-            if let Some((x, y)) = elf.proposed_move {
-                elf.x = x;
-                elf.y = y;
+        new_map.par_iter_mut().for_each(|elf| {
+            if elf.proposed_move.is_some()
+                && *proposed_move_map.get(&elf.proposed_move.unwrap()).unwrap() == 1
+            {
+                elf.x = elf.proposed_move.unwrap().0;
+                elf.y = elf.proposed_move.unwrap().1;
             }
             elf.proposed_move = None;
-        }
+        });
 
         map = new_map;
         global_dir += 1;
