@@ -209,16 +209,23 @@ pub fn solve_part2(input: &str) -> i64 {
 
     // Change this into ranges so that it's a vec of ranges where the first
     // range is element 1 to element 1 + (size of element 2)
-    let seeds = seeds
+    let seeds: Vec<(i64, i64)> = seeds
         .into_iter()
         .chunks(2)
         .into_iter()
         .map(|mut chunk| {
             let start = chunk.next().unwrap();
             let end = chunk.next().unwrap();
-            start..=start+end
+
+            // Create 100 ranges instead of 1 big one. This will cover
+            // start..start+end in 100 ranges
+            (0..10)
+                .into_iter()
+                .map(|i| (start + (end / 10 * i), start + (end / 10 * (i + 1))))
+                .collect::<Vec<_>>()
         })
-        .collect::<Vec<std::ops::RangeInclusive<i64>>>();
+        .flatten()
+        .collect();
 
     #[derive(Clone)]
     struct Map {
@@ -289,7 +296,6 @@ pub fn solve_part2(input: &str) -> i64 {
         seed_to_soil.push(map.clone());
     }
 
-
     // Go through each seed, and do the maps all the way through until the end.
     // We want to find the result of all the seeds that is the lowest at the
     // end.
@@ -297,40 +303,40 @@ pub fn solve_part2(input: &str) -> i64 {
         .into_par_iter()
         // .into_iter()
         .map(|m| {
-            m.map(|ref seed| {
-                let mut seed = *seed;
+            (m.0..=m.1)
+                .map(|ref seed| {
+                    let mut seed = *seed;
 
-                for map in &seed_to_soil {
-                    // Find the number in the map that the seed is in
-                    let mut from = None;
-                    for change in &map.numbers {
-                        if seed >= change.source_range_start
-                            && seed < change.source_range_start + change.range_length
-                        {
-                            from = Some(change);
-                            break;
+                    for map in &seed_to_soil {
+                        // Find the number in the map that the seed is in
+                        let mut from = None;
+                        for change in &map.numbers {
+                            if seed >= change.source_range_start
+                                && seed < change.source_range_start + change.range_length
+                            {
+                                from = Some(change);
+                                break;
+                            }
                         }
+                        // If from is none, then we didn't find a map. In that case, the
+                        // number stays the same.
+                        if from.is_none() {
+                            continue;
+                        }
+
+                        let change = from.unwrap();
+
+                        // Find the index of the seed in the from range
+                        let index = seed - change.source_range_start;
+
+                        // Add the index to the to range
+                        seed = change.dest_range_start + index;
                     }
-                    // If from is none, then we didn't find a map. In that case, the
-                    // number stays the same.
-                    if from.is_none() {
-                        continue;
-                    }
 
-                    let change = from.unwrap();
-
-                    // Find the index of the seed in the from range
-                    let index = seed - change.source_range_start;
-
-                    // Add the index to the to range
-                    seed = change.dest_range_start + index;
-                }
-
-
-                seed
-            })
-            .min()
-            .unwrap()
+                    seed
+                })
+                .min()
+                .unwrap()
         })
         .min()
         .unwrap()
