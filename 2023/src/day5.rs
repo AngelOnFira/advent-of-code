@@ -219,9 +219,9 @@ pub fn solve_part2(input: &str) -> i64 {
 
             // Create 100 ranges instead of 1 big one. This will cover
             // start..start+end in 100 ranges
-            (0..10)
+            (0..100)
                 .into_iter()
-                .map(|i| (start + (end / 10 * i), start + (end / 10 * (i + 1))))
+                .map(|i| (start + (end / 100 * i), start + (end / 100 * (i + 1))))
                 .collect::<Vec<_>>()
         })
         .flatten()

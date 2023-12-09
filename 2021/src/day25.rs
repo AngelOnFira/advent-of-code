@@ -54,7 +54,7 @@ pub fn solve_part1(input: &[[Place; xlen]; ylen]) -> i32 {
         // Move all the east facing first
         for y in 0..ylen {
             for x in 0..xlen {
-                if let Place::East = old_map[y][x] {
+                if let Place::East = new_map[y][x] {
                     let mut new_x = x + 1;
                     let mut new_y = y;
 
@@ -63,7 +63,7 @@ pub fn solve_part1(input: &[[Place; xlen]; ylen]) -> i32 {
                     }
 
                     // If this space is empty, move to it
-                    if old_map[new_y][new_x] == Place::Empty {
+                    if new_map[new_y][new_x] == Place::Empty {
                         new_map[new_y][new_x] = Place::East;
                         new_map[new_y][x] = Place::Empty;
                     }
@@ -71,12 +71,10 @@ pub fn solve_part1(input: &[[Place; xlen]; ylen]) -> i32 {
             }
         }
 
-        let old_map_2 = new_map.clone();
-
         // Move all the south facing next
         for y in 0..ylen {
             for x in 0..xlen {
-                if let Place::South = old_map_2[y][x] {
+                if let Place::South = new_map[y][x] {
                     let mut new_x = x;
                     let mut new_y = y + 1;
 
@@ -85,7 +83,7 @@ pub fn solve_part1(input: &[[Place; xlen]; ylen]) -> i32 {
                     }
 
                     // If this space is empty, move to it
-                    if old_map_2[new_y][new_x] == Place::Empty {
+                    if new_map[new_y][new_x] == Place::Empty {
                         new_map[new_y][new_x] = Place::South;
                         new_map[y][new_x] = Place::Empty;
                     }
