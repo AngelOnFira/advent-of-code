@@ -11,3 +11,5 @@ Cargo.lock
 **/*.rs.bk
 
 .env
+
+2025/**/binary*
