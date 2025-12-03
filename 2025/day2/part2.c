@@ -121,7 +121,7 @@ int main(void)
 
                         // If we're at the edge of a factor, we can check
                         // against the last stored number
-                        if ((ii + 1) % factors[factor_i] == 0)
+                        if (ii + 1 % factors[factor_i] == 0)
                         {
                             if (last_num == 0)
                             {
