@@ -17,6 +17,8 @@ int main(void)
     int multiplier = -1;
     int total = 0;
 
+    
+
     while ((read = getline(&line, &len, fp)) != -1)
     {
         char curr_char;

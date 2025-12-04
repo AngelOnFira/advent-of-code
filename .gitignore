@@ -13,3 +13,5 @@ Cargo.lock
 .env
 
 2025/**/binary*
+
+**/.DS_Store
