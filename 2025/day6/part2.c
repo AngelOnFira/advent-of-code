@@ -5,7 +5,7 @@
 #include <math.h>
 #include <string.h>
 
-int LINES = 3;
+int LINES = 4;
 
 int main(void)
 {
@@ -20,7 +20,8 @@ int main(void)
 
     int64_t total = 0;
 
-    int64_t nums[5000] = {0};
+    char nums[100000];
+    memset(nums, 'p', 100000);
 
     printf("tesT\n");
 
@@ -33,119 +34,70 @@ int main(void)
             break;
         }
 
-        printf("tesT\n");
-
-        // The final line
-        if (line[0] == '+' || line[0] == '*')
+        int i = 0;
+        int num_i = 0;
+        while (1)
         {
-            // Go through each element
-            int i = 0;
-            int num_i = 0;
-            while (1)
+            if (line[i] == '\0')
             {
-                // printf("%c", line[i]);
-                if (line[i] == ' ')
-                {
-                    i += 1;
-                    continue;
-                }
-                else if (line[i] == '*')
-                {
-                    int64_t result = 0;
-                    for (int digit_on = 0; digit_on < LINES; digit_on++)
-                    {
-                        int curr_num = 0;
-                        for (int num_on = 0; num_on < LINES; num_on++)
-                        {
-                            int pulled_num = nums[num_i + num_on * 1000];
-                            int pulled_digit = (int)(pulled_num / pow(10, digit_on)) % 10;
-                            if (pulled_digit != 0)
-                            {
-                                curr_num *= 10;
-                                curr_num += pulled_digit;
-                                printf("adding %lld\n", pulled_digit);
-                            }
-                        }
-
-                        if (result == 0)
-                        {
-                            result = curr_num;
-                        }
-                        else
-                        {
-                            result *= curr_num;
-                        }
-                    }
-                    total += result;
-                    printf("result %lld\n", result);
-                    num_i += 1;
-                }
-                else if (line[i] == '+')
-                {
-                    int64_t result = 0;
-                    for (int digit_on = 0; digit_on < LINES; digit_on++)
-                    {
-                        int curr_num = 0;
-                        for (int num_on = 0; num_on < LINES; num_on++)
-                        {
-                            int pulled_num = nums[num_i + num_on * 1000];
-                            int pulled_digit = (int)(pulled_num / pow(10, digit_on)) % 10;
-                            if (pulled_digit != 0)
-                            {
-                                curr_num *= 10;
-                                curr_num += pulled_digit;
-                                printf("adding %lld\n", pulled_digit);
-                            }
-                        }
-
-                        result += curr_num;
-                    }
-                    total += result;
-                    printf("result %lld\n", result);
-                    num_i += 1;
-                }
-                else
-                {
-                    break;
-                }
-                i += 1;
+                break;
             }
+
+            // printf("%c", nums[i + line_i * 5000]);
+            nums[i + line_i * 5000] = line[i];
+
+            i += 1;
+        }
+
+        line_i += 1;
+    }
+
+    bool last_is_add = true;
+    int64_t sub_total = 0;
+    for (int i = 0; i < 5000; i++)
+    {
+        char bottom = nums[i + LINES * 5000];
+
+        if (bottom == 'p')
+        {
+            break;
+        }
+
+        // printf("break %c %c %c %c\n", nums[i + 0 * 5000], nums[i + 1 * 5000], nums[i + 2 * 5000], nums[i + 3 * 5000]);
+
+        if (bottom == '*' || bottom == '+')
+        {
+            last_is_add = bottom == '+';
+            total += sub_total;
+            // printf("new total %lld %lld\n", sub_total, total);
+            sub_total = 0;
+        }
+        int this_num = 0;
+        for (int line = 0; line < LINES; line++)
+        {
+            char this_char = nums[i + line * 5000];
+            int this_digit = this_char - '0';
+            if (this_digit >= 0 && this_digit <= 9)
+            {
+                this_num *= 10;
+                this_num += this_digit;
+            }
+        }
+        if (this_num == 0) {
+            continue;
+        }
+        if (last_is_add || sub_total == 0)
+        {
+            sub_total += this_num;
         }
         else
         {
-            // Go through each element
-            int curr_num = 0;
-            int i = 0;
-            int num_i = 0;
-            while (1)
-            {
-                printf("%c", line[i]);
-                if (line[i] == ' ')
-                {
-                    if (curr_num != 0)
-                    {
-                        printf("accessing %d\n", num_i + line_i * 1000);
-                        printf("with %d %d\n", num_i, line_i);
-                        nums[num_i + line_i * 1000] = curr_num;
-                        curr_num = 0;
-                        num_i += 1;
-                    }
-                }
-                else if (line[i] >= '0' && line[i] <= '9')
-                {
-                    curr_num *= 10;
-                    curr_num += line[i] - '0';
-                }
-                else
-                {
-                    nums[num_i + line_i * 1000] = curr_num;
-                    break;
-                }
-                i += 1;
-            }
-            line_i += 1;
+            sub_total *= this_num;
         }
+        // printf("after %d %lld\n", this_num, sub_total);
     }
+
+    total += sub_total;
 
     printf("Part 2: %lld\n", total);
 
