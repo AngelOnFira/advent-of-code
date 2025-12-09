@@ -27,8 +27,6 @@ bool is_point_same(struct Point p1, struct Point p2)
     return (p1.x == p2.x && p1.y == p2.y && p1.z == p2.z);
 }
 
-struct Pair sorted_pairs[10000000];
-
 int main(void)
 {
     FILE *fp;
@@ -40,11 +38,11 @@ int main(void)
     if (fp == NULL)
         exit(EXIT_FAILURE);
 
-    int total = 0;
+    int64_t total = 0;
     int total_stored_pairs = 0;
 
     struct Point points[1000];
-    // struct Pair sorted_pairs[10000000];
+    struct Pair sorted_pairs[10000];
 
     // Read ranges
     int input_line_count = 0;
@@ -60,11 +58,12 @@ int main(void)
     }
 
     int check_counter = 0;
+    int last_total = 0;
 
     // n = 1000, QED bubble sort
     while (1)
     {
-        if (total_stored_pairs % 100 == 0)
+        if (total_stored_pairs % 1000 == 0)
         {
             printf("sorted pairs %d\n", total_stored_pairs);
         }
@@ -236,9 +235,17 @@ int main(void)
         // If we have the same number
         if (already_checked_i == input_line_count)
         {
-            total = min_pair.first.x * min_pair.second.x;
+            printf("found with %d, %d, %d\n", min_pair.first.x, min_pair.first.y, min_pair.first.z);
+            printf("found with %d, %d, %d\n", min_pair.second.x, min_pair.second.y, min_pair.second.z);
+            total = last_total;
             break;
         }
+
+        last_total = min_pair.first.x * min_pair.second.x;
+
+        // printf("found with %d, %d, %d\n", min_pair.first.x, min_pair.first.y, min_pair.first.z);
+        // printf("found with %d, %d, %d\n", min_pair.second.x, min_pair.second.y, min_pair.second.z);
+        // printf("\n");
 
         total_stored_pairs += 1;
     }
@@ -248,7 +255,7 @@ int main(void)
     //     printf("Selected %d %d, %d, %d | %d, %d, %d\n", sorted_pairs[i].distance, sorted_pairs[i].first.x, sorted_pairs[i].first.y, sorted_pairs[i].first.z, sorted_pairs[i].second.x, sorted_pairs[i].second.y, sorted_pairs[i].second.z);
     // }
 
-    printf("Part 2: %d\n", total);
+    printf("Part 2: %lld\n", total);
     // printf("check counter 2: %d\n", check_counter);
 
     free(line);
