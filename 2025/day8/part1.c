@@ -5,7 +5,7 @@
 #include <string.h>
 #include <math.h>
 
-const int COUNT = 10;
+const int COUNT = 1000;
 
 struct Point
 {
@@ -44,16 +44,16 @@ int main(void)
     struct Pair sorted_pairs[COUNT * 10];
 
     // Read ranges
-    int i = 0;
+    int input_line_count = 0;
     while ((read = getline(&line, &len, fp)) != -1)
     {
         int x, y, z;
         int result = sscanf(line, "%d,%d,%d", &x, &y, &z);
 
         struct Point point = {x, y, z};
-        points[i] = point;
+        points[input_line_count] = point;
 
-        i += 1;
+        input_line_count += 1;
     }
 
     int check_counter = 0;
@@ -65,9 +65,9 @@ int main(void)
         bool found_min_pair = false;
 
         // Go through each pair
-        for (int i1 = 0; i1 < COUNT; i1++)
+        for (int i1 = 0; i1 < input_line_count; i1++)
         {
-            for (int i2 = 0; i2 < COUNT; i2++)
+            for (int i2 = 0; i2 < input_line_count; i2++)
             {
                 if (i1 == i2)
                 {
@@ -126,84 +126,110 @@ int main(void)
         total_stored_pairs += 1;
     }
 
-    // Now we meed to find the largest connected graph
+    for (int i = 0; i < 5; i++)
+    {
+        printf("Selected %d %d, %d, %d | %d, %d, %d\n", sorted_pairs[i].distance, sorted_pairs[i].first.x, sorted_pairs[i].first.y, sorted_pairs[i].first.z, sorted_pairs[i].second.x, sorted_pairs[i].second.y, sorted_pairs[i].second.z);
+    }
 
+    // Now we meed to find the largest connected graph
     struct Point already_checked[COUNT * 10];
     int already_checked_i = 0;
     int top_three[3] = {0};
+
+    // We need to repeat until we don't add anything else to the list, because
+    // on the first pass it might not add some correctly
 
     for (int outer = 0; outer < COUNT; outer++)
     {
         struct Point this_round_checked[COUNT * 19];
         int this_round_checked_i = 0;
 
-        for (int i = outer; i < COUNT; i++)
+        while (1)
         {
-            // Look at both pairs, if either are in the already checked, we can
-            // continue because we would have looked at both before
-            bool found = false;
-            for (int ii = 0; ii < already_checked_i; ii++)
-            {
-                if (is_point_same(already_checked[ii], sorted_pairs[i].first) && is_point_same(already_checked[ii], sorted_pairs[i].second))
-                {
-                    found = true;
-                    break;
-                }
-            }
-            // If we found one, we can just to go the next
-            if (found)
-            {
-                continue;
-            }
+            int this_round_checked_start = this_round_checked_i;
 
-            // If the this_round_checked is empty, add both to it
-            if (this_round_checked_i == 0)
+            for (int i = outer; i < COUNT; i++)
             {
-                this_round_checked[this_round_checked_i] = sorted_pairs[i].first;
-                this_round_checked[this_round_checked_i + 1] = sorted_pairs[i].second;
-                this_round_checked_i += 2;
-
-                // And add them to already checked
-                already_checked[already_checked_i] = sorted_pairs[i].first;
-                already_checked[already_checked_i + 1] = sorted_pairs[i].second;
-                already_checked_i += 2;
-            }
-            // Otherwise, see if the first and second are already in the list.
-            // if either is, add the other to the list
-            else
-            {
-                bool found_first = false;
-                bool found_second = false;
+                // Look at both pairs, if either are in the already checked, we can
+                // continue because we would have looked at both before
+                bool found = false;
                 for (int ii = 0; ii < already_checked_i; ii++)
                 {
-                    if (is_point_same(already_checked[ii], sorted_pairs[i].first))
+                    if (is_point_same(already_checked[ii], sorted_pairs[i].first) && is_point_same(already_checked[ii], sorted_pairs[i].second))
                     {
-                        found_first = true;
-                    }
-
-                    if (is_point_same(already_checked[ii], sorted_pairs[i].second))
-                    {
-                        found_second = true;
-                    }
-
-                    if (found_first && found_second)
-                    {
+                        found = true;
                         break;
                     }
                 }
-
-                // It would be weird if both were true I think
-                if (found_first && !found_second)
+                // If we found one, we can just to go the next
+                if (found)
                 {
-                    already_checked[already_checked_i++] = sorted_pairs[i].second;
-                    this_round_checked[this_round_checked_i++] = sorted_pairs[i].second;
+                    continue;
                 }
 
-                if (found_second && !found_first)
+                // If the this_round_checked is empty, add both to it
+                if (this_round_checked_i == 0)
                 {
-                    already_checked[already_checked_i++] = sorted_pairs[i].first;
-                    this_round_checked[this_round_checked_i++] = sorted_pairs[i].first;
+                    this_round_checked[this_round_checked_i] = sorted_pairs[i].first;
+                    this_round_checked[this_round_checked_i + 1] = sorted_pairs[i].second;
+                    this_round_checked_i += 2;
+
+                    // And add them to already checked
+                    already_checked[already_checked_i] = sorted_pairs[i].first;
+                    already_checked[already_checked_i + 1] = sorted_pairs[i].second;
+                    already_checked_i += 2;
+
+                    printf("Adding %d, %d, %d\n", sorted_pairs[i].first.x, sorted_pairs[i].first.y, sorted_pairs[i].first.z);
+                    printf("Adding %d, %d, %d\n", sorted_pairs[i].second.x, sorted_pairs[i].second.y, sorted_pairs[i].second.z);
                 }
+                // Otherwise, see if the first and second are already in the list.
+                // if either is, add the other to the list
+                else
+                {
+                    bool found_first = false;
+                    bool found_second = false;
+                    for (int ii = 0; ii < already_checked_i; ii++)
+                    {
+                        if (is_point_same(already_checked[ii], sorted_pairs[i].first))
+                        {
+                            found_first = true;
+                        }
+
+                        if (is_point_same(already_checked[ii], sorted_pairs[i].second))
+                        {
+                            found_second = true;
+                        }
+
+                        // This will happen if both are already in the same circuit
+                        // already, so we won't trigger the next checks
+                        if (found_first && found_second)
+                        {
+                            break;
+                        }
+                    }
+
+                    if (found_first && !found_second)
+                    {
+                        already_checked[already_checked_i++] = sorted_pairs[i].second;
+                        this_round_checked[this_round_checked_i++] = sorted_pairs[i].second;
+                        printf("Adding %d, %d, %d\n", sorted_pairs[i].second.x, sorted_pairs[i].second.y, sorted_pairs[i].second.z);
+                    }
+
+                    if (found_second && !found_first)
+                    {
+                        already_checked[already_checked_i++] = sorted_pairs[i].first;
+                        this_round_checked[this_round_checked_i++] = sorted_pairs[i].first;
+                        printf("Adding %d, %d, %d\n", sorted_pairs[i].first.x, sorted_pairs[i].first.y, sorted_pairs[i].first.z);
+                    }
+                }
+            }
+
+            printf("\n");
+
+            // If this_round_checked_start is the same, we can finish this loop
+            if (this_round_checked_start == this_round_checked_i)
+            {
+                break;
             }
         }
 
