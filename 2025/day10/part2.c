@@ -10,6 +10,47 @@ static const char *const RE_PATTERN = "^\\[([.#]+)\\]";
 static const char *const RE_PARENS = "\\(([0-9,]+)\\)";
 static const char *const RE_CURLY = "\\{([0-9,]+)\\}";
 
+int recurse(
+    // Initial joltages
+    int *joltages,
+    // Initial buttons
+    uint16_t *buttons[30],
+    // How far into the button list we are
+    int current_button,
+    // What's already been pressed, and how many times
+    int *current_solve[30])
+{
+    // Make a copy of joltages
+    int new_joltages[20];
+    int new_current_solve[20];
+
+    memcpy(new_joltages, joltages, sizeof(new_joltages));
+    memcpy(new_current_solve, current_solve, sizeof(new_current_solve));
+
+    // Check if the current solve works
+
+    // If we can reduce with the current button more, we should do that
+    int best_solve = recurse(new_joltages);
+
+    // If best solve is > 0, we've got the solution
+    if (best_solve > 0)
+    {
+        return best_solve;
+    }
+
+    // Ok, we've tried that, and we haven't found a solve yet. Go to the next
+    // largest button, unless there are multiple of the same size.
+
+    int best_solve = recurse(new_joltages);
+}
+
+int recurion_init()
+{
+    int joltages[20];
+
+    int best_solve = recurse(joltages);
+}
+
 void print_binary16(uint16_t x)
 {
     for (int i = 15; i >= 0; i--)
@@ -24,7 +65,8 @@ struct Machine
     uint16_t state;
     uint16_t buttons[30];
     int button_count;
-    int stuff[20];
+    int joltages[20];
+    int joltage_count;
 };
 
 int main(void)
@@ -53,11 +95,12 @@ int main(void)
     int line_count = 0;
     while ((read = getline(&line, &len, fp)) != -1)
     {
-        printf("LINE: %s", line);
+        // printf("LINE: %s", line);
 
         uint16_t state = 0;
         uint16_t buttons[15];
-        int stuff[20];
+        int joltages[20];
+        int joltage_count = 0;
 
         regmatch_t mpat[2];
         if (regexec(&re_pat, line, ARRAY_SIZE(mpat), mpat, 0) == 0)
@@ -83,10 +126,23 @@ int main(void)
         if (regexec(&re_curly, line, ARRAY_SIZE(mcurly), mcurly, 0) == 0)
         {
             int clen = mcurly[1].rm_eo - mcurly[1].rm_so;
-            // printf("Curly:   \"%.*s\"\n", clen, line + mcurly[1].rm_so);
+            printf("Curly:   \"%.*s\"\n", clen, line + mcurly[1].rm_so);
+
+            char buf[64];
+            memcpy(buf, line + mcurly[1].rm_so, clen);
+            buf[len] = '\0';
+
+            char *tok = strtok(buf, ",");
+            int counter = 0;
+            while (tok != NULL)
+            {
+                int value = atoi(tok);
+
+                joltages[joltage_count++] = value;
+            }
         }
 
-        printf("Parens:\n");
+        // printf("Parens:\n");
         char *s = line;
         regmatch_t mparen[2];
         unsigned int button_count = 0;
@@ -106,7 +162,7 @@ int main(void)
             while (tok != NULL)
             {
                 int value = atoi(tok);
-                printf("    number = %d\n", value);
+                // printf("    number = %d\n", value);
 
                 for (; counter < value; counter++)
                 {
@@ -122,7 +178,7 @@ int main(void)
             {
                 this_button <<= 1;
             }
-            print_binary16(this_button);
+            // print_binary16(this_button);
             buttons[button_count] = this_button;
 
             s += mparen[0].rm_eo;
@@ -131,14 +187,15 @@ int main(void)
 
         struct Machine machine;
 
+        machine.joltage_count = joltage_count;
         machine.state = state;
         machine.button_count = button_count;
         memcpy(machine.buttons, buttons, sizeof(machine.buttons));
-        memcpy(machine.stuff, stuff, sizeof(machine.stuff));
+        memcpy(machine.joltages, joltages, sizeof(machine.joltages));
 
         machines[line_count] = machine;
 
-        printf("\n");
+        // printf("\n");
         line_count += 1;
     }
 
@@ -167,32 +224,6 @@ int main(void)
         while (1)
         {
             int curr_max_digits = 0;
-            // for (int how_many_perms_to_check = 1; how_many_perms_to_check < perms_length; how_many_perms_to_check++)
-            // {
-            //     // Go through each index of how many buttons are on this machine
-            //     for (int machine_button_index = 0;; machine_button_index++)
-            //     {
-            //         // If it's 0, then we can break because no buttons have no effect
-            //         if (this_machine.buttons[machine_button_index] == 0) {
-            //             break;
-            //         }
-
-            //         to_test[how_many_perms_to_check] += 1;
-
-            //         // Do the check
-            //         u_int16_t new_state = this_machine.state;
-
-            //         // Apply each of the buttons
-            //         for (int x = 0; x < how_many_perms_to_check; x++) {
-            //             new_state ^= this_machine.buttons[x];
-            //         }
-
-            //         if (new_state == 0) {
-            //             total += perms_length;
-            //             break
-            //         }
-            //     }
-            // }
 
             // Add one
             to_test[0] += 1;
@@ -242,7 +273,7 @@ int main(void)
     regfree(&re_parens);
     regfree(&re_curly);
 
-    printf("Part 1 %d", total);
+    printf("Part 2 %d", total);
 
     return 0;
 }
